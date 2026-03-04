@@ -1,1 +1,11 @@
-/backend/flood_tifs
+/backend/flood_tifs/
+/backend/ml/
+*.tif
+*.tiff
+
+env/
+.venv/
+venv/
+
+__pycache__/
+*.pyc
