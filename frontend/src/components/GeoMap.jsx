@@ -8,12 +8,14 @@ import debounce from "lodash/debounce";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import waterMarker from "../assets/water.png"
+import { GeoJSON } from "react-leaflet";
 
-const colors = ["##FFFFFF", "#C6DBEF", "#6BAED6", "#2171B5", "#08306B"];
+const colors = ["rgba(0,0,0,0)", "#C6DBEF", "#6BAED6", "#2171B5", "#08306B"];
 const resilienceColors = {
-  0: "#22c55e",  // Low risk - green
-  1: "#f97316",  // Medium risk - orange
-  2: "#ef4444",  // High risk - red
+  0: "rgba(0,0,0,0)", 
+  1: "#22c55e",  
+  2: "#f97316",  
+  3: "#ef4444",
 };
 
 const opacity = 0.7;
@@ -100,7 +102,6 @@ const MapHoverHandler = memo(function MapHoverHandler({ onHover, activeLayer, sc
        
        onHover((prev) => {
         if (!prev) return null;
-        // Remove the strict lat/lng equality check for now to verify data flow
         return {
           ...prev,
           confidence: data.confidence,
@@ -179,9 +180,33 @@ mousemove: (e) => {
 });
 
 // --- 3. MAIN EXPORT ---
-export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageName, showWaterMarkers }) {
+export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageName, showWaterMarkers, isBuildingsOn }) {
   const [activeLayer, setActiveLayer] = useState(null);
   const [waterBodies, setWaterBodies] = useState([]);
+  const [buildings, setBuildings] = useState(null);
+
+ useEffect(() => {
+  if (isBuildingsOn && !buildings) {
+    fetch("http://localhost:8000/api/buildings/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        // Add your token here if you use JWT/Token Auth
+        // "Authorization": `Token ${localStorage.getItem("token")}` 
+      }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`Status: ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        // If your backend returns an object that already has geometry,
+        // you might not need JSON.parse() at all.
+        setBuildings(data); 
+      })
+      .catch(err => console.error("Error fetching buildings:", err));
+  }
+}, [isBuildingsOn]);
 
 
   useEffect(() => {
@@ -215,6 +240,18 @@ export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageNa
           pageName={pageName} 
           setGlobalLayer={setActiveLayer} 
         />
+
+        {isBuildingsOn && buildings && (
+          <GeoJSON 
+            data={buildings} 
+            style={{ 
+              color: '#000000', 
+              weight: 1.5, 
+              fillOpacity: 0.4,
+              fillColor: '#fecaca' 
+            }} 
+          />
+        )}
 
 
         {sessionId && (

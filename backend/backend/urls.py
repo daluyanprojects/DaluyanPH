@@ -25,24 +25,24 @@ from django.conf.urls.static import static
 from api.controllers.run_resilience import RunResilienceView
 from django.views.decorators.csrf import csrf_exempt
 from api.controllers.progress import ProgressView
+from api.controllers.building_hover import BuildingLayerView
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path("export-map-pdf/", DownloadMapView.as_view(), name="download_map"),
     path("daluyan-map/download/", DownloadMapView.as_view(), name="download_map"),
     path("daluyan-map/create/", CreateMapView.as_view(), name="create_map"), 
-
     path("daluyan-map/", GetMapView.as_view(), name="get_map"), 
-
-    # ---------------- Flood Patch/Download ----------------
+    
     path("daluyan-map/flood-patch/<uuid:scenario_id>/", PatchDataView.as_view(), name="get_flood_patch"),
-
-    # water bodies in Manila
+    
     path('water-bodies/', WaterBodyListView.as_view(), name='water-bodies-list'),
 
     path("daluyan-map/resilience/run/", csrf_exempt(RunResilienceView.as_view()), name="run_resilience"),
 
     path('api/progress/<str:session_id>/', ProgressView.as_view(), name='progress'),
+
+    path('api/buildings/', BuildingLayerView.as_view(), name='building-layer'),
 
 ]
 

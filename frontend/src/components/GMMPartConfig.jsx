@@ -12,7 +12,7 @@ import DepthInfo from "./Info_Cards/depth_info";
 
 
 
-function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionID, pageName, mapType, onToggleWater, isWaterOn }) {
+function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionID, pageName, mapType, onToggleWater, isWaterOn, isBuildingsOn, onToggleBuilding }) {
   const [rainfallScenario, setRainfallScenario] = useState("");
   const [agentType, setAgentType] = useState("");
   const [depth, setDepth] = useState(0);
@@ -111,8 +111,6 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionI
                     <li> 
                       <span className="font-bold text-slate-800">Confidence :</span> How realiable the Model's prediction.
                     </li>
-
-
                 </ol>
 
 
@@ -142,20 +140,22 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionI
                 <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between">
                         
 
-                      {/* Map Type Toggle - Reuse logic like ManilaQuadConfig */}
+            {/* Map Type Toggle - Reuse logic like ManilaQuadConfig */}
             <div className="text-center">
               <p className="font-semibold mb-2 text-sm">Type of map</p>
               <div className="flex gap-2 items-center justify-center">
-                <Link to="/greater-manila-partition-splitting">
-                  <button type="button" className={`btn btn-sm w-[110px] ${mapType === 'susceptibility' ? 'btn-neutral' : 'btn-outline'}`}>
+
+                  <button type="button" className={`btn btn-sm w-[110px] ${mapType === 'susceptibility' ? 'btn-neutral' : 'btn-outline'}`}
+                  onClick={() => window.location.href = "/greater-manila-partition-splitting"}
+                  >
                     Susceptibility
                   </button>
-                </Link>
-                <Link to="/greater-manila-partition-resiliency">
-                  <button type="button" className={`btn btn-sm w-[110px] ${mapType === 'resiliency' ? 'btn-neutral' : 'btn-outline'}`}>
+
+                  <button type="button" className={`btn btn-sm w-[110px] ${mapType === 'resiliency' ? 'btn-neutral' : 'btn-outline'}`}
+                  onClick={() => window.location.href = "/greater-manila-partition-resiliency"}>
                     Resiliency
                   </button>
-                </Link>
+
               </div>
             </div>
 
@@ -168,6 +168,17 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionI
               </label>
             </div>
 
+
+            {mapType === "resiliency" && (
+              <div className="bg-slate-50 p-3 rounded-lg border mb-3 mt-4">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Building Layer</p>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-sm font-semibold text-slate-700">Show Buildings</span>
+                <input type="checkbox" className="toggle toggle-primary toggle-sm" checked={isBuildingsOn} onChange={() => onToggleBuilding(!isBuildingsOn)} />
+              </label>
+            </div>
+            )}
+
             <RainfallScenario value={rainfallScenario} onChange={setRainfallScenario} region="gmm" />
 
             {mapType === "susceptibility" && (
@@ -175,6 +186,7 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionI
                 <UserDropdown value={agentType} onChange={setAgentType} />
               </div>
             )}
+
 
             <div className="grid grid-cols-1 gap-3">
               <label className="flex flex-col gap-1">

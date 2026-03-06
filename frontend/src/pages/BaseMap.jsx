@@ -13,6 +13,7 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
   const [currentSessionID, setCurrentSessionID] = useState(null);
   const [showWaterMarkers, setShowWaterMarkers] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isBuildingsOn, setIsBuildingsOn] = useState(false)
 
 
   useEffect(() => {
@@ -85,6 +86,8 @@ const handleMapGenerated = (data) => {
             mapType={mapType}
             onToggleWater={setShowWaterMarkers}
             isWaterOn = {showWaterMarkers}
+            onToggleBuilding={setIsBuildingsOn} 
+            isBuildingsOn={isBuildingsOn}
 
           />
         ) : <p>Loading Config...</p>}
@@ -101,6 +104,7 @@ const handleMapGenerated = (data) => {
                 sessionId={currentSessionID} 
                 pageName={pageName}    
                 showWaterMarkers={showWaterMarkers}
+                isBuildingsOn={isBuildingsOn}
               />
             {hoverData && (
                 hoverData.mapType === "resiliency" 
@@ -119,19 +123,13 @@ const handleMapGenerated = (data) => {
 
     {loading && (
   <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center z-[5000]">
-    <div className="w-full max-w-xs bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
-      
-      {/* 1. TEXT HEADER */}
-      <h3 className="text-white font-bold mb-6 text-center text-lg tracking-tight">
-        Simulating Flood...
-      </h3>
-      
+    <div className="w-full max-w-xs min-h-[100px] min-w-[150] bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
       {/* 2. THE GIF (Now outside the progress bar) */}
       <div className="flex justify-center mb-6">
         <img 
           src={DaluyanGIF}
           alt="Daluyan Loading..."
-          className="w-24 h-24 object-contain" 
+          className="w-[100px] h-[50px] object-contain" 
         />
       </div>
 
@@ -148,7 +146,7 @@ const handleMapGenerated = (data) => {
         <div className="flex justify-between text-[10px] text-slate-400 font-mono uppercase tracking-widest">
           <span>{progress}%</span>
           <span className="animate-pulse">
-            {progress === 100 ? "Complete" : "Analyzing Terrain..."}
+            {progress === 100 ? "Complete" : "Processing..."}
           </span>
         </div>
       </div>

@@ -7,9 +7,10 @@ const FloodPatchRes = ({ hoverData }) => {
 
   const getRiskLabel = (val) => {
     const levels = {
-      0: { label: "Strong", color: "text-emerald-400" },
-      1: { label: "Average", color: "text-orange-400" },
-      2: { label: "Low", color: "text-red-500" },
+      0: { label: "No Risk", color: "text-emerald-50" },
+      1: { label: "Strong", color: "text-emerald-400" },
+      2: { label: "Average", color: "text-orange-400" },
+      3: { label: "Low", color: "text-red-500" },
     };
     return levels[val] || { label: "No Data", color: "text-slate-500" };
   };
