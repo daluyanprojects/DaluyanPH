@@ -24,7 +24,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from api.controllers.run_resilience import RunResilienceView
 from django.views.decorators.csrf import csrf_exempt
-
+from api.controllers.progress import ProgressView
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -41,6 +41,9 @@ urlpatterns = [
     path('water-bodies/', WaterBodyListView.as_view(), name='water-bodies-list'),
 
     path("daluyan-map/resilience/run/", csrf_exempt(RunResilienceView.as_view()), name="run_resilience"),
+
+    path('api/progress/<str:session_id>/', ProgressView.as_view(), name='progress'),
+
 ]
 
 if settings.DEBUG:

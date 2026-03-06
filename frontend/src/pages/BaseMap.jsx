@@ -1,8 +1,9 @@
 // Change the function to accept props
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GeoMap from "../components/GeoMap";
 import FloodPatch from "../components/flood_patch_hover/FloodPatch";
 import FloodPatchRes from "../components/flood_patch_hover/FloodPatchRes";
+import DaluyanGIF from "../assets/Daluyan.gif"
 
 const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
 
@@ -11,20 +12,64 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
   const [hoverData, setHoverData] = useState(null);
   const [currentSessionID, setCurrentSessionID] = useState(null);
   const [showWaterMarkers, setShowWaterMarkers] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+
+  useEffect(() => {
+  let interval;
+  if (loading && currentSessionID) {
+    // Add initial delay before first poll
+    const startPolling = setTimeout(() => {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`http://localhost:8000/api/progress/${currentSessionID}/`);
+          
+          if (!res.ok) {
+            console.error("Progress endpoint error:", res.status);
+            return;
+          }
+          
+          const data = await res.json();
+          
+          // Only update if we get a valid percentage
+          if (typeof data.percentage === 'number') {
+            setProgress(data.percentage);
+            
+            if (data.percentage === 100) {
+              clearInterval(interval);
+            }
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      }, 1000);
+    }, 500); // Wait 500ms before starting to poll
+    
+    return () => {
+      clearTimeout(startPolling);
+      if (interval) clearInterval(interval);
+    };
+  }
+}, [loading, currentSessionID]);
+
+
+
 
   // We use the prop 'pageId' instead of a hardcoded state
-  const handleMapGenerated = (data) => {
-    console.log("Scenario saved to database:", data);
-
-    setCurrentSessionID(data.session_id); // store session ID
-    setMapVersion(prev => prev + 1); // refresh map
-    setLoading(false); // stop loading
-  };
+const handleMapGenerated = (data) => {
+  setProgress(100); // Force 100% on completion
+  setTimeout(() => {
+    setMapVersion(prev => prev + 1);
+    setLoading(false);
+  }, 500); // Give the user half a second to see the 'Complete' state
+};
 
        
   const handleMapHover = (data) => {
     setHoverData(data); // update hover data for flood patch
   };
+
+
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -35,6 +80,7 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
             setLoading={setLoading} 
             loading={loading} 
             onMapGenerated={handleMapGenerated} 
+            setCurrentSessionID={setCurrentSessionID}
             pageName={pageName} 
             mapType={mapType}
             onToggleWater={setShowWaterMarkers}
@@ -71,11 +117,49 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
         )}
         </div>
 
-        {loading && (
-           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[5000]">
-              <span className="loading loading-spinner loading-lg text-white"></span>
-           </div>
-        )}
+    {loading && (
+  <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center z-[5000]">
+    <div className="w-full max-w-xs bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
+      
+      {/* 1. TEXT HEADER */}
+      <h3 className="text-white font-bold mb-6 text-center text-lg tracking-tight">
+        Simulating Flood...
+      </h3>
+      
+      {/* 2. THE GIF (Now outside the progress bar) */}
+      <div className="flex justify-center mb-6">
+        <img 
+          src={DaluyanGIF}
+          alt="Daluyan Loading..."
+          className="w-24 h-24 object-contain" 
+        />
+      </div>
+
+      {/* 3. PROGRESS BAR CONTAINER */}
+      <div className="space-y-3">
+        <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden border border-slate-600">
+          <div 
+            className="bg-blue-500 h-full transition-all duration-700 ease-in-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+
+        {/* 4. PERCENTAGE METRICS */}
+        <div className="flex justify-between text-[10px] text-slate-400 font-mono uppercase tracking-widest">
+          <span>{progress}%</span>
+          <span className="animate-pulse">
+            {progress === 100 ? "Complete" : "Analyzing Terrain..."}
+          </span>
+        </div>
+      </div>
+      
+      {/* 5. LOADING DOTS */}
+      <div className="mt-6 flex justify-center">
+        <span className="loading loading-dots loading-md text-blue-400"></span>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

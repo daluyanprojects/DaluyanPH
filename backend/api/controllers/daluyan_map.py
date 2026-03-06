@@ -55,7 +55,7 @@ class CreateMapView(APIView):
         if serializer.is_valid():
             scenario = serializer.save()
             
-            ml_success = run_ml_inference(scenario, page_name)
+            ml_success = run_ml_inference(scenario, page_name, scenario.id)
 
 
             if ml_success:

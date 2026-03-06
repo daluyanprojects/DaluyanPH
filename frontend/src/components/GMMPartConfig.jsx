@@ -12,12 +12,12 @@ import DepthInfo from "./Info_Cards/depth_info";
 
 
 
-function GMMPartConfig({ setLoading, loading, onMapGenerated, pageName, mapType, onToggleWater, isWaterOn }) {
+function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionID, pageName, mapType, onToggleWater, isWaterOn }) {
   const [rainfallScenario, setRainfallScenario] = useState("");
   const [agentType, setAgentType] = useState("");
-  const [currentSessionID, setCurrentSessionID] = useState(null);
   const [depth, setDepth] = useState(0);
   const [tpeak, setTpeak] = useState(0);
+  const [lastFinishedID, setLastFinishedID] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,9 +32,9 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, pageName, mapType,
     return toast.error("Please select a User Type for Susceptibility analysis");
   }
 
-    setLoading(true);
     const sessionID = uuidv4();
     setCurrentSessionID(sessionID);
+    setLoading(true);
 
     const payload = {
     page_name: pageName,
@@ -58,6 +58,7 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, pageName, mapType,
 
         });
       }
+      setLastFinishedID(sessionID);
       toast.success(`${mapType === 'susceptibility' ? 'Susceptibility' : 'Resiliency'} Map successful!`);
       onMapGenerated(response.data);
     } catch (error) {
@@ -65,17 +66,16 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, pageName, mapType,
       const serverMessage = error.response?.data ? JSON.stringify(error.response.data) : "Simulation failed.";
       console.error("Backend Error:", error.response?.data);
       toast.error(`Server Error!`);
-    } finally {
       setLoading(false);
-    }
+    } 
   };
 
 
  const handleDownload = () => {
-  if (!currentSessionID) {
+  if (!lastFinishedID) {
     return toast.error("Please run a simulation first to generate a map.");
   }
-  const url = `http://127.0.0.1:8000/export-map-pdf/?sessionId=${currentSessionID}&page_name=${pageName}`;
+  const url = `http://127.0.0.1:8000/export-map-pdf/?sessionId=${lastFinishedID}&page_name=${pageName}`;
   console.log("Attempting PDF Download with URL:", url);
   const win = window.open(url, "_blank");
   if (!win) {
@@ -88,11 +88,34 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, pageName, mapType,
         <div className="w-full max-w-md bg-white flex flex-col mx-auto shadow-md">  
             <Navbar2 />
             <div className="p-5 flex-1 flex flex-col justify-between">
-                <p className="text-sm mb-4"> Predict flood risks in Manila based on real-world environmental data. 
+                <p className="text-sm mb-4"> <span className="font-bold text-slate-800">Predict flood risks in Manila </span>based on real-world environmental data. 
                   Select a rainfall type and depth to see how the city respond to a storm. 
-                  The generated map assumes rainfall occurring over a 1-hour duration.
+                  The generated map assumes rainfall occurring over a <span className="font-bold text-slate-800">1-hour duration.</span>
                   This tool uses advanced AI trained on Greater Metro Manila's terrain to provide highly localized risk and resiliency maps.
                 </p>
+
+                <h2 className="font-bold mb-2">Manila City MetaData:</h2>
+                <ol className="list-decimal list-outside pl-5 mb-4 text-sm space-y-2">
+                    <li>
+                        <span className="font-bold text-slate-800">Lat (Latitude) & Lng (Longitude) :</span> Coordinates used to pinpoint areas in Manila.
+                    </li>
+                    <li>
+                        <span className="font-bold text-slate-800">Hazard (Susceptability) :</span> Probability of Flooding impact in Manila.
+                    </li>
+                    <li>
+                        <span className="font-bold text-slate-800">Hazard (Resiliency) :</span> How vulnerable an area is and its capaccity to cope with flood events.
+                    </li>
+                    <li>
+                        <span className="font-bold text-slate-800">Barangay :</span> local government unit of Manila.
+                    </li>
+                    <li> 
+                      <span className="font-bold text-slate-800">Confidence :</span> How realiable the Model's prediction.
+                    </li>
+
+
+                </ol>
+
+
                 
                 {/* Instructions */}
                 <h2 className="font-bold mb-2">Instructions:</h2>
@@ -198,7 +221,7 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, pageName, mapType,
                 className="btn btn-outline btn-sm w-full" 
                 type="button" 
                 onClick={handleDownload} 
-                disabled={!currentSessionID}
+                disabled={!lastFinishedID}
               >
                 DOWNLOAD PDF
               </button>

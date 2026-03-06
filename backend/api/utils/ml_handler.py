@@ -10,6 +10,8 @@ from api.models import FloodPatch
 from ml.manila_quadrant.ml_handler_logic import run_manila_quadrant_inference
 import sys
 from pyproj import Transformer
+from django.core.cache import cache
+import time
 
 logger = logging.getLogger(__name__)
 try:
@@ -101,7 +103,12 @@ def process_resilience_to_db(tif_path, session_id, record):
             FloodPatch.objects.bulk_create(patches_to_create)
 
 # --- 3. ML DISPATCHER ---
-def run_ml_inference(record, page_name):
+def run_ml_inference(record, page_name, scenario_id):
+    #start progress 
+    cache_key = f"progress_{record.session_id}"
+    cache.set(cache_key, 10, timeout=600)
+    time.sleep(0.1)
+
     ml_config = {
         "type": record.type,
         "agent": record.agent.lower() if record.agent else "pedestrian",
@@ -135,6 +142,9 @@ def run_ml_inference(record, page_name):
             out_dir = os.path.join(settings.MEDIA_ROOT, session_folder)
             os.makedirs(out_dir, exist_ok=True)
 
+            # session 2 
+            cache.set(cache_key, 30, timeout=600)
+
             results = run_gmm(
                 rainfall_scenario=rainfall,
                 depth_mm=depth_mm,
@@ -143,6 +153,9 @@ def run_ml_inference(record, page_name):
                 output_dir=out_dir,
                 agent_type=agent_type.lower()
             )
+
+            # 3. ML Math finished, now processing file (70%)
+            cache.set(cache_key, 90, timeout=600)
             
             # Convert absolute result path to a relative path for Django's FileField/URL
             tif_abs = str(results["tif_path"])
@@ -155,12 +168,14 @@ def run_ml_inference(record, page_name):
             record.tif_file = relative_path 
             record.save()
 
+
             process_resilience_to_db(full_tif_path, record.session_id, record)
             return True
         logger.warning(f"ML Script did not return a path for {page_name}")
         return False
         
     except Exception as e:
+        cache.set(cache_key, -1, timeout=600)
         logger.error(f"ML Dispatcher Error: {e}")
         import traceback
         print(traceback.format_exc())

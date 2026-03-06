@@ -14,3 +14,13 @@ torch
 torchvision 
 torchaudio
 rasterstats
+rasterio
+pandas
+timm
+pyproj
+matplotlib 
+georaster
+geopandas 
+scipy 
+scikit-learn 
+seaborn 
