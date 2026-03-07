@@ -71,11 +71,13 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionI
   };
 
 
- const handleDownload = () => {
+const handleDownload = () => {
   if (!lastFinishedID) {
     return toast.error("Please run a simulation first to generate a map.");
   }
-  const url = `http://127.0.0.1:8000/export-map-pdf/?sessionId=${lastFinishedID}&page_name=${pageName}`;
+  
+  const url = `http://127.0.0.1:8000/export-map-pdf/?sessionId=${lastFinishedID}&page_name=${pageName}&mapType=${mapType}`;
+  
   console.log("Attempting PDF Download with URL:", url);
   const win = window.open(url, "_blank");
   if (!win) {

@@ -26,6 +26,7 @@ from api.controllers.run_resilience import RunResilienceView
 from django.views.decorators.csrf import csrf_exempt
 from api.controllers.progress import ProgressView
 from api.controllers.building_hover import BuildingLayerView
+from api.controllers.stats import ExtremeBarangayView
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -43,6 +44,7 @@ urlpatterns = [
     path('api/progress/<str:session_id>/', ProgressView.as_view(), name='progress'),
 
     path('api/buildings/', BuildingLayerView.as_view(), name='building-layer'),
+    path("daluyan-map/extreme-barangays/", ExtremeBarangayView.as_view(), name="extreme_barangays"),
 
 ]
 

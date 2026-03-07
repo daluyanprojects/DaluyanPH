@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from core.download_template import create_pdf
+from core.download_template import create_susc_pdf
+from core.download_res_template import create_res_pdf
 from api.models import (
     ManilaQuadrantScenario, ManilaPartitionScenario,
     GMMQuadrantScenario, GMMPartitionScenario
@@ -24,9 +25,23 @@ class DownloadMapView(APIView):
     def get(self, request):
         print("!!! DOWNLOAD VIEW TRIGGERED !!!")
         session_id = request.query_params.get("sessionId")
+        psession_id = request.query_params.get("sessionId")
         page_name = request.query_params.get("page_name")
-        export_type = request.query_params.get("format", "pdf") # default to pdf
+        map_type = request.query_params.get("mapType")
 
+        # DEBUGGING: See exactly what the frontend is sending
+        print(f"DEBUG: page_name={page_name}, map_type={map_type}")
+
+        template_router = {
+            "resiliency": create_res_pdf,
+            "susceptibility": create_susc_pdf
+        }
+
+        # Normalize the input to avoid case-sensitivity issues
+        key = map_type.lower() if map_type else ""
+        generator_func = template_router.get(key, create_susc_pdf)
+        
+        export_type = request.query_params.get("format", "pdf") # default to pdf
         ModelClass, _ = get_model_and_serializer(page_name)
         scenario = get_object_or_404(ModelClass, session_id=session_id)
 
@@ -47,7 +62,7 @@ class DownloadMapView(APIView):
 
         try:
             # Generate PDF using the scenario object
-            pdf_buffer = create_pdf(request, scenario, page_name, file_path)
+            pdf_buffer = generator_func(request, scenario, page_name, file_path)
             
             return FileResponse(
                 pdf_buffer,

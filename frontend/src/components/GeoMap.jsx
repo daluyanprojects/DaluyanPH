@@ -15,13 +15,12 @@ const resilienceColors = {
   0: "rgba(0,0,0,0)", 
   1: "#22c55e",  
   2: "#f97316",  
-  3: "#ef4444",
+  3: "#961620",
 };
 
 const opacity = 0.7;
 const waterIcon = new L.Icon({
     iconUrl: waterMarker,
-    iconRetinaUrl: 'https://cdn-icons-png.flaticon.com/512/3105/3105807.png',
     iconSize: [25, 25],     // Size of the icon
     iconAnchor: [17, 35],    // Point of the icon which will correspond to marker's location
     popupAnchor: [0, -35],   // Point from which the popup should open relative to the iconAnchor
@@ -246,9 +245,9 @@ export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageNa
             data={buildings} 
             style={{ 
               color: '#000000', 
-              weight: 1.5, 
+              weight: 1.5,
               fillOpacity: 0.4,
-              fillColor: '#fecaca' 
+              fillColor: "rgba(0,0,0,0)"
             }} 
           />
         )}

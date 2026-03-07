@@ -13,6 +13,9 @@ import requests
 from rasterio.warp import reproject, Resampling
 from rasterio.crs import CRS
 from rasterio.transform import from_bounds
+from django.db.models import Count
+from api.models import FloodPatch
+from api.utils.stats_helper import get_top_extreme_stats, calculate_area_sq_km
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -85,7 +88,7 @@ def get_basemap_bounds(lat, lon, zoom, width_px=MAP_PX):
     return nw_lon, se_lat, se_lon, nw_lat  # west, south, east, north
 
 
-def create_pdf(request, scenario, map_type, map_path):
+def create_susc_pdf(request, scenario, map_type, map_path):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
     page_width, page_height = letter
@@ -109,7 +112,7 @@ def create_pdf(request, scenario, map_type, map_path):
     # 3. Title
     c.setFont("Helvetica-Bold", 20)
     c.drawCentredString(page_width / 2, page_height - 1 * inch,
-                        f"Flood Risk Map : {map_type.title()}")
+                        f"Flood Susceptability Map of Manila City")
 
     # --- Map Box ---
     map_width = 5.5 * inch
@@ -168,36 +171,45 @@ def create_pdf(request, scenario, map_type, map_path):
     except Exception as e:
         print(f"Overlay Rendering Error: {e}")
 
-    # --- Legend & Compass ---
-    line_y = map_y - 0.4 * inch
-    legend_w, legend_h = 1.2 * inch, 1.2 * inch
-    compass_w, compass_h = 0.8 * inch, 0.8 * inch # Slightly smaller for balance
-    
-    # Y-coordinate: Placing them right above the separator line
-    # We use line_y (the separator line) as the base
-    bottom_element_y = line_y + 0.4 * inch 
+    # --- Legend & Compass (OVERLAY ON MAP) ---
+    # Increase these values to make the legend bigger
+    legend_w, legend_h = 2 * inch, 2 * inch 
+    compass_w, compass_h = 1.0 * inch, 1.0 * inch
 
-    # 1. Legend: Lower Left (on top of the footer)
+    # Legend position (bottom-left inside map)
+    legend_x = map_x + 0.05 * inch
+
+    # Subtract more from map_y to move it further down
+    # For example, subtract 0.5 inches instead of 0.1
+    legend_y = map_y - 0.45 * inch
+
+    # FIXED: Compass position 
+    # Instead of relying on the new, larger legend_w, 
+    # we anchor the compass to a fixed coordinate relative to the map.
+    compass_x = legend_x + 1.7 * inch # Changed from 'legend_x + legend_w + 0.2'
+    compass_y = map_y + 0.15 * inch
+
+    # Draw Legend
     if legend_image.exists():
         c.drawImage(
             ImageReader(str(legend_image)),
-            SIDE_MARGIN,               # X: Align with left margin
-            bottom_element_y,          # Y: Just above the line
-            width=legend_w, 
+            legend_x,
+            legend_y,
+            width=legend_w,
             height=legend_h,
-            preserveAspectRatio=True, 
+            preserveAspectRatio=True,
             mask='auto'
         )
 
-    # 2. Compass: Lower Right (on top of the footer)
+    # Draw Compass
     if compass.exists():
         c.drawImage(
             ImageReader(str(compass)),
-            page_width - SIDE_MARGIN - compass_w, # X: Align with right margin
-            bottom_element_y,                     # Y: Just above the line
-            width=compass_w, 
+            compass_x,
+            compass_y,
+            width=compass_w,
             height=compass_h,
-            preserveAspectRatio=True, 
+            preserveAspectRatio=True,
             mask='auto'
         )
     # --- Separator Line ---
@@ -206,19 +218,28 @@ def create_pdf(request, scenario, map_type, map_path):
 
     # --- Footer Boxes ---
     gap = 0.25 * inch
-    box_width = (page_width - (2 * SIDE_MARGIN) - gap) / 2
+    box_width = (page_width - (2 * SIDE_MARGIN) - (2 * gap)) / 3
     box_height = 1.5 * inch
     box_y = line_y - box_height - 0.3 * inch
 
-    c.rect(SIDE_MARGIN, box_y, box_width, box_height)
-    c.rect(SIDE_MARGIN + box_width + gap, box_y, box_width, box_height)
+    scenario_x = SIDE_MARGIN
+    barangay_x = SIDE_MARGIN + box_width + gap
+    summary_x = SIDE_MARGIN + (box_width + gap) * 2
 
+
+    # Draw boxes
+    c.rect(scenario_x, box_y, box_width, box_height)
+    c.rect(barangay_x, box_y, box_width, box_height)
+    c.rect(summary_x, box_y, box_width, box_height)
+
+    # Scenario boxes
     c.setFont("Helvetica-Bold", 10)
     c.setFillColorRGB(0, 0, 0)
-    c.drawString(SIDE_MARGIN + 0.1 * inch, box_y + box_height - 0.2 * inch, "SCENARIO DETAILS")
+    c.drawString(scenario_x + 0.1 * inch, box_y + box_height - 0.2 * inch, "SCENARIO DETAILS")
 
     detail_y = box_y + box_height - 0.4 * inch
     c.setFont("Helvetica", 9)
+
     potential_details = [
         ("rainfall_scenario", "Rainfall Distribution"),
         ("depth_limit", "Rainfall Depth (mm)"),
@@ -229,32 +250,49 @@ def create_pdf(request, scenario, map_type, map_path):
         if hasattr(scenario, attr):
             val = getattr(scenario, attr)
             if val is not None:
-                c.drawString(SIDE_MARGIN + 0.1 * inch, detail_y, f"{label}: {val}")
+                c.drawString(scenario_x + 0.1 * inch, detail_y, f"{label}: {val}")
                 detail_y -= 0.15 * inch
 
+    # Barangay Box 
+    top_barangays = get_top_extreme_stats(scenario.session_id)
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(SIDE_MARGIN + box_width + gap + 0.1 * inch,
-                 box_y + box_height - 0.2 * inch, "RISK LEVEL SUMMARY")
-    summary_x = SIDE_MARGIN + box_width + gap + 0.1 * inch
-    
-    # Inside Risk Level Summary Text
-    c.setFont("Helvetica", 7)  # Smaller font to fit descriptions
+    c.drawString(barangay_x + 0.1 * inch, box_y + box_height - 0.2 * inch, "TOP EXTREME BARANGAYS")
+
+    c.setFont("Helvetica", 8)
+
+    y = box_y + box_height - 0.4 * inch
+    rank = 1
+
+    for b in top_barangays:
+        area_km2 = calculate_area_sq_km(b['extreme_count'])
+        text = f"{rank}. {b['barangay_name']} | {area_km2:.2f} m²"
+        c.drawString(barangay_x + 0.1 * inch, y, text)
+        y -= 0.15 * inch
+        rank += 1
+
+    # Flood Risk Box 
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(summary_x + 0.1 * inch, box_y + box_height - 0.2 * inch, "RISK LEVEL SUMMARY")
+
+    c.setFont("Helvetica", 7)
+
     text_y = box_y + box_height - 0.4 * inch
     line_height = 0.12 * inch
 
     descriptions = [
-        ("Light Flooding:", "Minor water accumulation on low-lying roads; most areas passable."),
-        ("Medium Flooding:", "Noticeable and disruptive; potentially affecting ground-level areas."),
-        ("Heavy Flooding:", "Significant and hazardous; roads difficult to pass; impact on infrastructure."),
-        ("Extreme Flooding:", "Severe/widespread; movement dangerous; high potential for major damage.")
+        ("Light Flooding:", "Minor water accumulation on low-lying roads."),
+        ("Medium Flooding:", "Noticeable flooding affecting roads."),
+        ("Heavy Flooding:", "Hazardous flooding affecting infrastructure."),
+        ("Extreme Flooding:", "Severe flooding with high damage potential.")
     ]
 
     for title, desc in descriptions:
         c.setFont("Helvetica-Bold", 7)
-        c.drawString(summary_x, text_y, title)
+        c.drawString(summary_x + 0.1 * inch, text_y, title)
         text_y -= line_height
+
         c.setFont("Helvetica", 6.5)
-        c.drawString(summary_x + 0.05 * inch, text_y, desc)
+        c.drawString(summary_x + 0.2 * inch, text_y, desc)
         text_y -= (line_height + 0.02 * inch)
 
     c.showPage()

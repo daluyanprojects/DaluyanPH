@@ -112,7 +112,7 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'flood_thesis',
         'USER': 'postgres',
-        'PASSWORD': 'datateam',
+        'PASSWORD': 'data101',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -173,30 +173,16 @@ CORS_ALLOWED_ORIGINS = [
 
 # change this to your directory if wala sa postgres nyo ang gdal 
 # #Local files ni allycakes
-# GDAL_LIBRARY_PATH = r"C:\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\bin\\gdal312.dll"
-# GEOS_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\geos_c.dll"
-# --- GIS LIBRARY CONFIGURATION ---
-import os
+GDAL_LIBRARY_PATH = r"C:\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\bin\\gdal312.dll"
+GEOS_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\geos_c.dll"
 
-# 1. Define the DLL paths from QGIS (These work fine for Django)
-GDAL_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.4\bin\gdal310.dll"
-GEOS_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.4\bin\geos_c.dll"
+PROJ_LIB_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\share\\proj"
 
-# 2. Fix the PROJ Version Mismatch
-# We check if the virtual environment has its own proj data (usually more compatible)
-VENV_PROJ = os.path.join(BASE_DIR.parent, "env", "Lib", "site-packages", "rasterio", "proj_data")
-QGIS_PROJ = r"C:\Program Files\QGIS 3.40.4\share\proj"
+if os.path.exists(PROJ_LIB_PATH):
+    os.environ["PROJ_LIB"] = PROJ_LIB_PATH
+    # For newer versions of GDAL/PROJ, sometimes you also need:
+    os.environ["GDAL_DATA"] = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\share\\gdal"
 
-if os.path.exists(VENV_PROJ):
-    PROJ_LIB_PATH = VENV_PROJ
-else:
-    PROJ_LIB_PATH = QGIS_PROJ
-
-# 3. Apply Environment Variables
-os.environ["GDAL_LIBRARY_PATH"] = GDAL_LIBRARY_PATH
-os.environ["GEOS_LIBRARY_PATH"] = GEOS_LIBRARY_PATH
-os.environ["PROJ_LIB"] = PROJ_LIB_PATH
-os.environ["GDAL_DATA"] = r"C:\Program Files\QGIS 3.40.4\share\gdal"
 #Local files ni kandis
 #GDAL_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\gdal312.dll"
 #GEOS_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\geos_c.dll"
