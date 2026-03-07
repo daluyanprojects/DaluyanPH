@@ -61,8 +61,11 @@ class PatchDataView(APIView):
                         "lat": patch.lat, 
                         "lng": patch.lng
                     },
-                    "containerPoint": request.data.get("containerPoint") 
+                    "containerPoint": request.data.get("containerPoint"),
+                    "poverty": patch.poverty if patch.poverty is not None else -9999.0
                 }
+                if is_resiliency:
+                    response_data["poverty"] = patch.poverty
                 
                 if not is_resiliency:
                     response_data["confidence"] = patch.confidence
@@ -104,6 +107,9 @@ class PatchDataView(APIView):
                     "depth": patch.depth,
                     "barangay": patch.barangay_name,
                 }
+                if is_resiliency:
+                    item["poverty"] = patch.poverty
+
                 if not is_resiliency:
                     item["confidence"] = patch.confidence
 

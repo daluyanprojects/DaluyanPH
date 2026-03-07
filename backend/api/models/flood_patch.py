@@ -14,6 +14,7 @@ class FloodPatch(models.Model):
     psgc_code = models.BigIntegerField(db_index=True, null=True, blank=True)
     depth = models.FloatField()
     confidence = models.FloatField()
+    poverty = models.FloatField(db_index=True, null=True, blank=True)
     # --- PostGIS Spatial Field ---
     # srid 4326  standard GPS coordinates
     location = gis_models.PointField(srid=4326)

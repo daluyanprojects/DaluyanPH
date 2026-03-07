@@ -1,3 +1,4 @@
+#api/controllers/run_resilience.py
 import sys
 import os
 import subprocess
@@ -69,10 +70,10 @@ class RunResilienceView(APIView):
             result = subprocess.run(
                 [
                     sys.executable,
-                    script_path, # Using the dynamic path here
+                    script_path,
                     "--flood_tif",  flood_tif_path,
                     "--session_id", session_id,
-                    "--page_name",  page_name, # Pass page_name so script knows which assets to load
+                    "--page_name",  page_name, 
                     "--out_dir",    resilience_folder
                 ],
                 capture_output=True,
@@ -84,8 +85,16 @@ class RunResilienceView(APIView):
                 print(f"SCRIPT ERROR: {result.stderr}")
                 return Response({"error": result.stderr}, status=500)
 
-            # Get the TIF path printed by the script
-            full_out_path = result.stdout.strip().split('\n')[-1] 
+            full_out_path = None
+            for line in result.stdout.splitlines():
+                print("SCRIPT STDOUT:", result.stdout)
+                full_out_path = line.replace("PATH_SUCCESS:", "").strip()
+                if line.startswith("PATH_SUCCESS:"):
+                    full_out_path = line.replace("PATH_SUCCESS:", "").strip()
+                    break
+
+            if not full_out_path:
+                return Response({"error": "Script did not provide a valid output path."}, status=500)
             
             # TRIGGER THE PIXEL-TO-DB PROCESSING (For tooltips)
             process_resilience_to_db(full_out_path, session_id, scenario)

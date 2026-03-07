@@ -18,7 +18,7 @@ class WaterBodyAdmin(gis_admin.GISModelAdmin):
 
 @admin.register(FloodPatch)
 class FloodPatchAdmin(gis_admin.GISModelAdmin):
-    list_display = ('barangay_name', 'psgc_code', 'depth', 'confidence', 'lat', 'lng')
+    list_display = ('barangay_name', 'psgc_code', 'depth', 'confidence','poverty', 'lat', 'lng')
     list_filter = ('depth', 'barangay_name')
     search_fields = ('barangay_name', 'psgc_code', 'object_id')
 

@@ -12,6 +12,8 @@ import sys
 from pyproj import Transformer
 from django.core.cache import cache
 import time
+import numpy as np
+
 
 logger = logging.getLogger(__name__)
 try:
@@ -45,30 +47,47 @@ def _get_gmm_rainfall_runner():
 
 def process_resilience_to_db(tif_path, session_id, record):
     ctype = ContentType.objects.get_for_model(record)
+    is_resiliency = (getattr(record, 'type', '') == 'resiliency')
+
     patches_to_create = [] 
     
     with rasterio.open(tif_path) as src:
-        # 1. Create a Transformer to go from TIF CRS to GPS (4326)
-        transformer = Transformer.from_crs(src.crs, "EPSG:4326", always_xy=True)
+        print(f"DEBUG: Processing file {tif_path} with {src.count} bands.")
         if src.count >= 3:
-            band1 = src.read(1) # Hazard
-            band2 = src.read(3) # PSGC (Large integer)
-            band3 = src.read(2) # Confidence (Decimal)
+            ("DEBUG: Poverty sample values:", np.unique(src.read(3))[:10])
+        transformer = Transformer.from_crs(src.crs, "EPSG:4326", always_xy=True)
+        
+        # Read bands based on the workflow
+        band1 = src.read(1) # Always Hazard/Depth
+        
+        if is_resiliency:
+            # Band 2 = PSGC, Band 3 = Poverty (DMFLR)
+            psgc_band = src.read(2)
+            poverty_band = src.read(3)
+            confidence_band = None
         else:
-            # Fallback for 2-band resilience TIFs
-            band1 = src.read(1)
-            band2 = src.read(2)
-            band3 = None
+            # Original Susceptibility mapping
+            psgc_band = src.read(3)
+            poverty_band = None
+            confidence_band = src.read(2)
 
         affine = src.transform
-
+        
         for row in range(0, src.height, 5): 
             for col in range(0, src.width, 5):
                 risk_val = band1[row, col]
-                psgc_val = band2[row, col] if band2 is not None else 0
+                psgc_val = psgc_band[row, col] if psgc_band is not None else 0
 
-                raw_conf = float(band3[row, col]) if band3 is not None else 1000.0
-                conf_val = raw_conf / 1000.0 if raw_conf > 1.0 else raw_conf
+                if is_resiliency:
+                    poverty_val = float(poverty_band[row, col]) if poverty_band is not None else None
+                    conf_val = 1.0 # Default/Not applicable for Resiliency
+                else:
+                    poverty_val = None
+                    raw_conf = float(confidence_band[row, col]) if confidence_band is not None else 1000.0
+                    conf_val = raw_conf / 1000.0 if raw_conf > 1.0 else raw_conf
+
+
+    
                 if risk_val != 255 and psgc_val > 0:
                     # Get projected X, Y (in meters)
                     x_meters, y_meters = affine * (col, row)
@@ -89,8 +108,9 @@ def process_resilience_to_db(tif_path, session_id, record):
                         content_type=ctype,
                         object_id=session_id,
                         barangay_name=name,
-                        psgc_code=pk_int,
-                        depth=risk_val,
+                        psgc_code=int(psgc_val),
+                        depth=float(risk_val),
+                        poverty=poverty_val if poverty_val != -9999.0 else None,
                         confidence=conf_val,
                         lat=lat, # This will now be ~14.5
                         lng=lng, # This will now be ~120.9

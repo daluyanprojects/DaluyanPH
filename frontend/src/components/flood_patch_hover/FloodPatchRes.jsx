@@ -19,6 +19,20 @@ const FloodPatchRes = ({ hoverData }) => {
   const x = hoverData.containerPoint?.x || 0;
   const y = hoverData.containerPoint?.y || 0;
 
+  const getPovertyLabel = (val) => {
+   console.log("Hover Poverty Value:", val);
+    if (val === null || val === undefined || val < 0) return { label: "No Data", color: "text-slate-500" };
+    
+    // Mapping based on your legend image ranges
+    if (val === 0) return { label: "Richest", color: "text-purple-500" };
+    if (val <= 0.0093) return { label: "Prosperous", color: "text-blue-400" };
+    if (val <= 0.0303) return { label: "Middle Class", color: "text-teal-400" };
+    if (val <= 0.0523) return { label: "Lower Middle", color: "text-green-400" };
+    return { label: "Poorest", color: "text-yellow-400" }; // val > 0.0523
+  };
+
+  const povertyStatus = getPovertyLabel(hoverData.poverty);
+
   return (
     <div className="tooltip-container" style={{ top: y + 20, left: x + 20, position: "absolute", zIndex: 9999, }}>
        <div className="flex flex-col gap-2 bg-slate-900/95 p-3 rounded-xl border border-emerald-900/50 min-w-[200px] text-white">
@@ -47,6 +61,11 @@ const FloodPatchRes = ({ hoverData }) => {
              <span className="text-slate-400 text-[11px]">Capacity:</span>
              <span className={`font-black uppercase text-[12px] ${status.color}`}>{status.label}</span>
           </div>
+
+          <div className="flex justify-between items-center py-1">
+            <span className="text-slate-400 text-[11px]">Economic Class:</span>
+            <span className={`font-black uppercase text-[12px] ${povertyStatus.color}`}>{povertyStatus.label}</span>
+         </div>
          
        </div>
     </div>
