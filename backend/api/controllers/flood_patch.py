@@ -52,7 +52,14 @@ class PatchDataView(APIView):
 
             if patch:
                 #print(f"✅ Found Patch: {patch.barangay_name} | Dist: {patch.distance.m:.2f}m")
+                # Get the raw value from the database
+                raw_poverty = patch.poverty
+                processed_poverty = -9999.0 # Default fallback
                 
+                if raw_poverty is not None and raw_poverty != -9999.0:
+                    # Perform your division here (e.g., dividing by 100)
+                    processed_poverty = raw_poverty / 10000
+
                 response_data = {
                     "type": scenario.type,
                     "barangay_name": patch.barangay_name,
@@ -62,10 +69,8 @@ class PatchDataView(APIView):
                         "lng": patch.lng
                     },
                     "containerPoint": request.data.get("containerPoint"),
-                    "poverty": patch.poverty if patch.poverty is not None else -9999.0
+                    "poverty": processed_poverty
                 }
-                if is_resiliency:
-                    response_data["poverty"] = patch.poverty
                 
                 if not is_resiliency:
                     response_data["confidence"] = patch.confidence

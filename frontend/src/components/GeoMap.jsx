@@ -105,7 +105,9 @@ const MapHoverHandler = memo(function MapHoverHandler({ onHover, activeLayer, sc
           ...prev,
           confidence: data.confidence,
           barangay_name: data.barangay_name,
-          hazardValue: data.hazardValue
+          hazardValue: data.hazardValue,
+          poverty: data.poverty
+
         };
       });
       } catch (err) {

@@ -1,6 +1,7 @@
 import React from "react";
 
 const FloodPatchRes = ({ hoverData }) => {
+  console.log("FULL HOVER DATA RECEIVED:", hoverData);
   if (!hoverData || !hoverData.latlng) return null;
 
   const { lat, lng } = hoverData.latlng;
@@ -19,17 +20,20 @@ const FloodPatchRes = ({ hoverData }) => {
   const x = hoverData.containerPoint?.x || 0;
   const y = hoverData.containerPoint?.y || 0;
 
-  const getPovertyLabel = (val) => {
-   console.log("Hover Poverty Value:", val);
-    if (val === null || val === undefined || val < 0) return { label: "No Data", color: "text-slate-500" };
-    
-    // Mapping based on your legend image ranges
-    if (val === 0) return { label: "Richest", color: "text-purple-500" };
-    if (val <= 0.0093) return { label: "Prosperous", color: "text-blue-400" };
-    if (val <= 0.0303) return { label: "Middle Class", color: "text-teal-400" };
-    if (val <= 0.0523) return { label: "Lower Middle", color: "text-green-400" };
-    return { label: "Poorest", color: "text-yellow-400" }; // val > 0.0523
-  };
+// In FloodPatchRes.js
+const getPovertyLabel = (val) => {
+  console.log("DEBUG: Poverty value received:", val, typeof val);
+  if (val === null || val === undefined || val === -9999.0 || val === "") {
+    return { label: "No Data", color: "text-slate-500" };
+  }
+  
+  // Based on your legend: 0 is dark (Richest), increasing values are lighter (Poorer)
+  if (val === 0) return { label: "Richest", color: "text-purple-500" };
+  if (val > 0 && val <= 0.0093) return { label: "Prosperous", color: "text-blue-400" };
+  if (val > 0.0093 && val <= 0.0303) return { label: "Middle Class", color: "text-teal-400" };
+  if (val > 0.0303 && val <= 0.0523) return { label: "Lower Middle", color: "text-green-400" };
+  return { label: "Poorest", color: "text-yellow-400" };
+};
 
   const povertyStatus = getPovertyLabel(hoverData.poverty);
 
