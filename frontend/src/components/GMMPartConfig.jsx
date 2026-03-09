@@ -114,7 +114,7 @@ const handleDownload = () => {
 
     <div className=" m-2 mb-5">
             <h2 className="text-blue-600 font-bold mb-1 text-lg">Simulation Control Panel</h2>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-6">Workflow Setup & Parameters</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-6">Workflow Setup & Parameters</p>
 
             <div className="grid grid-cols-1 gap-4 text-[12px]">
               {/* Row 1: Setup */}
@@ -196,7 +196,7 @@ const handleDownload = () => {
             <div className="bg-slate-50 p-3 rounded-lg border mb-3 mt-4">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Environmental Layers</p>
               <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm font-semibold text-slate-700">Show Water Bodies</span>
+                <span className="text-sm font-semibold text-slate-700">Show Bodies of Water</span>
                 <input type="checkbox" className="toggle toggle-primary toggle-sm" checked={isWaterOn} onChange={() => onToggleWater(!isWaterOn)} />
               </label>
             </div>
