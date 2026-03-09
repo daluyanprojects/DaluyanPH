@@ -90,55 +90,86 @@ const handleDownload = () => {
         <div className="w-full max-w-md bg-white flex flex-col mx-auto shadow-md">  
             <Navbar2 />
             <div className="p-5 flex-1 flex flex-col justify-between">
-                <p className="text-sm mb-4"> <span className="font-bold text-slate-800">Predict flood risks in Manila </span>based on real-world environmental data. 
-                  Select a rainfall type and depth to see how the city respond to a storm. 
-                  The generated map assumes rainfall occurring over a <span className="font-bold text-slate-800">1-hour duration.</span>
-                  This tool uses advanced AI trained on Greater Metro Manila's terrain to provide highly localized risk and resiliency maps.
+            <div className= "mb-4">
+              <h3 className="text-slate-900 font-bold mb-2">Manila Susceptability & Resiliency</h3>
+            <p className="text-sm text-slate-600 mb-4 leading-relaxed">
+              Predict localized flood risks and infrastructure capacity using AI trained on Metro Manila's terrain data.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2 text-[11px] text-slate-700 bg-white p-2 rounded border border-slate-200">
+                <span className="font-bold text-blue-600">Duration:</span> 1-Hour Storm
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-700 bg-white p-2 rounded border border-slate-200">
+                <span className="font-bold text-blue-600">Model:</span> ViT
+              </div>
+            </div>
+
+
+            </div>
+            
+
+
+
+
+    <div className=" m-2 mb-5">
+            <h2 className="text-blue-600 font-bold mb-1 text-lg">Simulation Control Panel</h2>
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-6">Workflow Setup & Parameters</p>
+
+            <div className="grid grid-cols-1 gap-4 text-[12px]">
+              {/* Row 1: Setup */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-100 p-4 rounded-xl border border-slate-400">
+                  <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">1. Rainfall <RainfallScenarioInfo /></span>
+                  <p className="text-slate-600 leading-snug">Choose Chicago or SCS method.</p>
+                </div>
+                <div className="bg-[#6ab9b4]/15 p-4 rounded-xl border border-[#50a09b]">
+                  <span className="font-bold text-blue-600 block mb-1 uppercase text-[10px]">2. Depth <DepthInfo /></span>
+                  <p className="text-slate-600 leading-snug">Set limit.</p>
+                </div>
+              </div>
+
+              {/* Row 2: Analysis Mode */}
+              <div className="bg-slate-100 p-4 rounded-xl border border-slate-400">
+                <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">3. Analysis Mode</span>
+                <p className="text-slate-600 leading-tight">
+                  Toggle <span className="font-semibold text-slate-900">Susceptibility</span> (depth) or 
+                  <span className="font-semibold text-slate-900"> Resiliency</span> (capacity).
                 </p>
+              </div>
 
-                <h2 className="font-bold mb-2">Manila City MetaData:</h2>
-                <ol className="list-decimal list-outside pl-5 mb-4 text-sm space-y-2">
-                    <li>
-                        <span className="font-bold text-slate-800">Lat (Latitude) & Lng (Longitude) :</span> Coordinates used to pinpoint areas in Manila.
-                    </li>
-                    <li>
-                        <span className="font-bold text-slate-800">Hazard (Susceptability) :</span> Probability of Flooding impact in Manila.
-                    </li>
-                    <li>
-                        <span className="font-bold text-slate-800">Hazard (Resiliency) :</span> How vulnerable an area is and its capaccity to cope with flood events.
-                    </li>
-                    <li>
-                        <span className="font-bold text-slate-800">Barangay :</span> local government unit of Manila.
-                    </li>
-                    <li> 
-                      <span className="font-bold text-slate-800">Confidence :</span> How realiable the Model's prediction.
-                    </li>
-                </ol>
+          {/* Row 3: Final Steps */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-[#6ab9b4]/15  p-4 rounded-xl border border-[#50a09b]">
+              <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">4. User Type</span>
+              <p className="text-slate-600 leading-snug">Weight for Pedestrian or Vehicular movement (Susceptibility only).</p>
+            </div>
+            <div className="bg-blue-50/80 p-4 rounded-xl border-2 border-blue-500 flex items-center justify-center text-center">
+              <p className="text-blue-600 font-bold uppercase tracking-widest text-xs">5. Simulate</p>
+            </div>
+          </div>
+        </div>
+    </div>
 
 
-                
-                {/* Instructions */}
-                <h2 className="font-bold mb-2">Instructions:</h2>
-                <ol className="list-decimal list-outside pl-5 mb-4 text-sm space-y-2">
-                    <li>
-                        Select a <span className="font-bold text-slate-800">Rainfall Scenario</span> (Chicago Method or SCS) to define the temporal distribution of the storm.
-                        <RainfallScenarioInfo />
-                    </li>
-                    <li>
-                        Toggle between <span className="font-bold text-slate-800">Susceptibility</span> (predicting hazardous flood depth) or <span className="font-bold text-slate-800">Resiliency</span> (evaluating building-level recovery capacity).
-                    </li>
-                    <li>
-                        Enter the <span className="font-bold text-slate-800">Rainfall Depth</span> within the validated model bounds.
-                        <DepthInfo />
-                    </li>
-                    <li>
-                        If using Susceptibility, specify the <span className="font-bold text-slate-800">User Type</span> to weight the model for pedestrian or vehicular movement.
-                    </li>
-                    <li>
-                        Click <span className="font-bold text-slate-800">Simulate</span> to run the ViT-based inference and generate the localized heat map.
-                    </li>
-                </ol>
-                
+
+                <div className="mb-3 bg-slate-900/95 p-1.5 rounded-lg border border-emerald-900/50 text-white text-[10px]">
+                  <h2 className="text-blue-400 font-bold mb-1 border-b border-emerald-900/30 pb-1">
+                    Manila City - Analysis
+                  </h2>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1">
+                    <p><span className="text-slate-500 font-bold">Lat/Lng:</span> Area coordinates.</p>
+                    <p><span className="text-slate-500 font-bold">Hazard (S):</span> Flood probability.</p>
+                    <p><span className="text-slate-500 font-bold">Hazard (R):</span> Capacity to recover.</p>
+                    <p><span className="text-slate-500 font-bold">Barangay:</span> Local government unit.</p>
+                    <p><span className="text-slate-500 font-bold">Confidence:</span> Model reliability.</p>
+                    <p><span className="text-slate-500 font-bold">Economic Class:</span> Poverty/income level</p>
+                  </div>
+              </div>     
+
+              <div className="my-4 border-t border-gray-900/50"></div>
+
+
                 <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between">
                         
 

@@ -43,10 +43,10 @@ const HomePage = () => {
       
 
       {/* About Us */}
-      <div className="w-full max-h-fit bg-slate-800 text-white p-11 grid grid-cols-2 gap-8">
-          <div>
+      <div className="w-full max-h-fit bg-slate-800 text-white p-11 grid grid-cols-2 gap-20">
+          <div >
             <h2 className="text-2xl font-semibold mb-4">About Us</h2>
-              <p>
+              <p className="pl-10 pr-10 mr-5 ml-5">
                 <span className="font-bold text-xl"> DaluyanPH </span>is a web-based platform that aims to support disaster risk reduction in Manila City. 
                 Our system helps visualize and monitor flood accumulation in real time, providing residents 
                 and authorities with accessible data to make informed decisions during heavy rainfall. 
@@ -55,7 +55,7 @@ const HomePage = () => {
           </div>
           <div>
             <h2 className="text-2xl font-semibold mb-4">Vision & Mission</h2>
-            <p>
+            <p className="pl-10 pr-10 mr-5 ml-5">
               To build a safer and more resilient Manila City through accessible technology 
               that empowers citizens to prepare for and respond to flooding.<br></br>
               Our mission is to provide a reliable web platform that visualizes flood accumulation, 
