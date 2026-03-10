@@ -7,10 +7,18 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: { 
+      fontFamily: {
+        // This tells Tailwind that 'sans' = Inter
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+    
+    },
+    
   },
   plugins: [daisyui],
   daisyui: {
     themes: ["nord", "dark"],
   },
 };
+

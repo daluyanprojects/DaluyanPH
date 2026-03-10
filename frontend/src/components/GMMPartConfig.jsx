@@ -3,12 +3,13 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
-import Navbar2 from "../components/navbars/Navbar2";
 import UserDropdown from "../utils/UserDropdown";
 import { Info } from "lucide-react";
 import RainfallScenarioInfo from "../components/Info_Cards/RainScenarioInfo";
 import RainfallScenario from "../utils/RainfallScenario"
 import DepthInfo from "./Info_Cards/depth_info";
+import HomeIcon from "../assets/home.png"
+import Logo from "../assets/Daluyan_PH_Logo.png"
 
 
 
@@ -86,10 +87,47 @@ const handleDownload = () => {
 };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white">
         <div className="w-full max-w-md bg-white flex flex-col mx-auto shadow-md">  
-            <Navbar2 />
-            <div className="p-5 flex-1 flex flex-col justify-between">
+            
+
+
+<header className="bg-base-300 shadow-sm relative flex items-center overflow-visible">
+  <div className="max-w-7xl mx-auto px-4 w-full">
+    <div className="flex items-center">
+
+      <Link to="/" className="flex items-center hover:opacity-80 transition">
+        <img src={HomeIcon} alt="Home" className="h-4 w-4" />
+      </Link>
+
+      <div className="ml-11 py-6">
+        <img src={Logo} alt="Daluyan PH" className="h-8 w-auto bg-center items-center" />
+        
+      </div>
+
+      
+
+      <div className="flex-1"></div>
+
+    </div>
+  </div>
+
+  {/* Wave */}
+  <div className="absolute bottom-[-54px] left-0 w-full leading-none">
+    <svg
+      viewBox="0 0 1200 120"
+      preserveAspectRatio="none"
+      className="block w-full h-14"
+    >
+      <path
+        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+        className="fill-base-300"
+      />
+    </svg>
+  </div>
+</header>
+
+            <div className="mt-9 p-5 flex-1 flex flex-col justify-between">
             <div className= "mb-4">
               <h3 className="text-slate-900 font-bold mb-2">Manila Susceptability & Resiliency</h3>
             <p className="text-sm text-slate-600 mb-4 leading-relaxed">
@@ -109,10 +147,12 @@ const handleDownload = () => {
             </div>
             
 
+            <div className="my-4 border-t border-gray-900/50"></div>
 
 
 
-    <div className=" m-2 mb-5">
+
+    <div className=" m-2 mb-3">
             <h2 className="text-blue-600 font-bold mb-1 text-lg">Simulation Control Panel</h2>
             <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-6">Workflow Setup & Parameters</p>
 
@@ -152,10 +192,14 @@ const handleDownload = () => {
     </div>
 
 
+    <div className="my-4 border-t border-gray-900/50 mb-7"></div>
 
-                <div className="mb-3 bg-slate-900/95 p-1.5 rounded-lg border border-emerald-900/50 text-white text-[10px]">
+
+              
+                <div className="mb-3 bg-slate-900/95 p-1.5 rounded-lg border border-emerald-900/50 text-white text-[10px]  shadow-[0_8px_20px_rgba(0,0,0,0.45)] 
+                  transform -translate-y-1">
                   <h2 className="text-blue-400 font-bold mb-1 border-b border-emerald-900/30 pb-1">
-                    Manila City - Analysis
+                    Manila City - Analysis Definition
                   </h2>
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1">
                     <p><span className="text-slate-500 font-bold">Lat/Lng:</span> Area coordinates.</p>
@@ -165,7 +209,8 @@ const handleDownload = () => {
                     <p><span className="text-slate-500 font-bold">Confidence:</span> Model reliability.</p>
                     <p><span className="text-slate-500 font-bold">Economic Class:</span> Poverty/income level</p>
                   </div>
-              </div>     
+              </div>  
+ 
 
               <div className="my-4 border-t border-gray-900/50"></div>
 
