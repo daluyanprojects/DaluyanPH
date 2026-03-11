@@ -17,7 +17,7 @@ import { LayoutGrid, CloudRain, Map, Droplets } from 'lucide-react';
 
 const modelData = [
   {
-    title: "Greater Manila Rainfall Partition",
+    title: "Manila City",
     subtitle: "Simulate Flood Prediction",
     Link: "/greater-manila-partition-splitting",
     Icon: CloudRain

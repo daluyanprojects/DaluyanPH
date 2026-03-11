@@ -13,6 +13,7 @@ from pyproj import Transformer
 from django.core.cache import cache
 import time
 import numpy as np
+from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
@@ -42,8 +43,8 @@ def _get_gmm_rainfall_runner():
         sys.path.insert(0, gmm_path)
     
     # Change 'gmm_quadrant' to 'gmm_rainfall' to match your folder structure
-    from ml.gmm_rainfall.main import run_gmm_rainfall_from_scenario 
-    return run_gmm_rainfall_from_scenario
+    from ml.gmm_rainfall.main import run_complete_testing
+    return run_complete_testing
 
 def process_resilience_to_db(tif_path, session_id, record):
     ctype = ContentType.objects.get_for_model(record)
@@ -124,6 +125,7 @@ def process_resilience_to_db(tif_path, session_id, record):
 
 # --- 3. ML DISPATCHER ---
 def run_ml_inference(record, page_name, scenario_id):
+    mask_path = settings.BASE_DIR / "ml" / "gmm_rainfall" / "manila_box_shape.tif"
     #start progress 
     cache_key = f"progress_{record.session_id}"
     cache.set(cache_key, 10, timeout=600)
@@ -165,13 +167,21 @@ def run_ml_inference(record, page_name, scenario_id):
             # session 2 
             cache.set(cache_key, 30, timeout=600)
 
+
+            geojson_abs_path = str(settings.BASE_DIR / "ml" / "gmm_rainfall" / "manila_barangay_geojson.geojson")
+            ml_base = settings.BASE_DIR / "ml" / "gmm_rainfall"
+            suffix = "" if agent_type == 'vehicle' else "_ped"
+            spatial_data_abs_path = str(ml_base / f"outputs{suffix}" / "spatial_data.npz")
+
             results = run_gmm(
-                rainfall_scenario=rainfall,
+                user_type=agent_type.lower(),
+                geojson_path=geojson_abs_path,
+                spatial_data_path=spatial_data_abs_path,
+                output_dir=out_dir,
+                storm_type=rainfall,      # Was rainfall_scenario
                 depth_mm=depth_mm,
                 tpeak=tpeak,
-                session_id=record.session_id,
-                output_dir=out_dir,
-                agent_type=agent_type.lower()
+                mask_tif_path=str(mask_path)
             )
 
             # 3. ML Math finished, now processing file (70%)

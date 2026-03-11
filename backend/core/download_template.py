@@ -165,7 +165,7 @@ def create_susc_pdf(request, scenario, map_type, map_path):
 
         overlay_img = Image.fromarray(rgba_data, 'RGBA')
         c.drawImage(ImageReader(overlay_img),
-            map_x + 0.2 * inch, map_y - 0.3 * inch, width=map_width, height=map_height,
+            map_x + 0.15 * inch, map_y - 0.3 * inch, width=map_width, height=map_height,
             mask='auto')
 
     except Exception as e:
