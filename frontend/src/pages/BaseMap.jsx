@@ -4,6 +4,8 @@ import GeoMap from "../components/GeoMap";
 import FloodPatch from "../components/flood_patch_hover/FloodPatch";
 import FloodPatchRes from "../components/flood_patch_hover/FloodPatchRes";
 import DaluyanGIF from "../assets/Daluyan.gif"
+import Logo from "../assets/Daluyan_PH_Logo.png"
+import { Link } from 'react-router-dom';
 
 const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
 
@@ -74,7 +76,16 @@ const handleMapGenerated = (data) => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto z-[1001] relative">
+
+      <header className="fixed top-0 left-0 w-full z-[1002] border-b border-gray-200 bg-white">
+      <div className="px-6 py-3 flex items-center">
+        <Link to="/">
+        <img src={Logo} alt="logo" className="h-6 w-auto"/>
+        </Link>
+      </div>
+    </header>
+      
+      <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto z-[1001] relative mt-[60px]">
         {/* Pass pageId down to Config */}
        {ConfigComponent ? (
           <ConfigComponent
@@ -94,7 +105,7 @@ const handleMapGenerated = (data) => {
       </div>
 
       {/* Map Area */}
-      <div className="flex-1 flex flex-col relative min-w-0">
+      <div className="flex-1 flex flex-col relative min-w-0 ">
 
         <div className="flex-1 bg-slate-400 min-h-[400px] w-full flex items-center justify-center relative">
             <GeoMap 

@@ -89,45 +89,7 @@ const handleDownload = () => {
   return (
     <div className="flex min-h-screen bg-white">
         <div className="w-full max-w-md bg-white flex flex-col mx-auto shadow-md">  
-            
-
-
-<header className="bg-base-300 shadow-sm relative flex items-center overflow-visible">
-  <div className="max-w-7xl mx-auto px-4 w-full">
-    <div className="flex items-center">
-
-      <Link to="/" className="flex items-center hover:opacity-80 transition">
-        <img src={HomeIcon} alt="Home" className="h-4 w-4" />
-      </Link>
-
-      <div className="ml-11 py-6">
-        <img src={Logo} alt="Daluyan PH" className="h-8 w-auto bg-center items-center" />
-        
-      </div>
-
-      
-
-      <div className="flex-1"></div>
-
-    </div>
-  </div>
-
-  {/* Wave */}
-  <div className="absolute bottom-[-54px] left-0 w-full leading-none">
-    <svg
-      viewBox="0 0 1200 120"
-      preserveAspectRatio="none"
-      className="block w-full h-14"
-    >
-      <path
-        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-        className="fill-base-300"
-      />
-    </svg>
-  </div>
-</header>
-
-            <div className="mt-9 p-5 flex-1 flex flex-col justify-between">
+            <div className="p-4 flex-1 flex flex-col justify-between">
             <div className= "mb-4">
               <h3 className="text-slate-900 font-bold mb-2">Manila Susceptability & Resiliency</h3>
             <p className="text-sm text-slate-600 mb-4 leading-relaxed">
@@ -147,7 +109,7 @@ const handleDownload = () => {
             </div>
             
 
-            <div className="my-4 border-t border-gray-900/50"></div>
+            <div className="my-4 border-t border-gray-900/10"></div>
 
 
 
@@ -158,19 +120,20 @@ const handleDownload = () => {
 
             <div className="grid grid-cols-1 gap-4 text-[12px]">
               {/* Row 1: Setup */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-100 p-4 rounded-xl border border-slate-400">
+              <div className="grid grid-cols-2 gap-1">
+                <div className="bg-slate-100/30 p-4 rounded-xl border border-slate-400/15">
                   <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">1. Rainfall <RainfallScenarioInfo /></span>
                   <p className="text-slate-600 leading-snug">Choose Chicago or SCS method.</p>
                 </div>
-                <div className="bg-[#6ab9b4]/15 p-4 rounded-xl border border-[#50a09b]">
-                  <span className="font-bold text-blue-600 block mb-1 uppercase text-[10px]">2. Depth <DepthInfo /></span>
+
+                <div className="bg-[#6ab9b4]/5 p-4 rounded-xl border border-[#50a09b]/10">
+                  <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">2. Depth <DepthInfo /></span>
                   <p className="text-slate-600 leading-snug">Set limit.</p>
                 </div>
               </div>
 
               {/* Row 2: Analysis Mode */}
-              <div className="bg-slate-100 p-4 rounded-xl border border-slate-400">
+              <div className="bg-slate-100/50 p-4 rounded-xl border border-slate-400/10">
                 <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">3. Analysis Mode</span>
                 <p className="text-slate-600 leading-tight">
                   Toggle <span className="font-semibold text-slate-900">Susceptibility</span> (depth) or 
@@ -179,20 +142,20 @@ const handleDownload = () => {
               </div>
 
           {/* Row 3: Final Steps */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-[#6ab9b4]/15  p-4 rounded-xl border border-[#50a09b]">
+          <div className="grid grid-cols-2 gap-1">
+            <div className="bg-[#6ab9b4]/5  p-4 rounded-xl border border-[#50a09b]/10">
               <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">4. User Type</span>
               <p className="text-slate-600 leading-snug">Weight for Pedestrian or Vehicular movement (Susceptibility only).</p>
             </div>
-            <div className="bg-blue-50/80 p-4 rounded-xl border-2 border-blue-500 flex items-center justify-center text-center">
-              <p className="text-blue-600 font-bold uppercase tracking-widest text-xs">5. Simulate</p>
+            <div className="bg-blue-50/50 p-4 rounded-xl border-2 border-blue-500/10 flex items-center justify-center text-center">
+              <p className="text-blue-900 font-bold uppercase tracking-widest text-xs">5. Simulate</p>
             </div>
           </div>
         </div>
     </div>
 
 
-    <div className="my-4 border-t border-gray-900/50 mb-7"></div>
+    <div className="my-4 border-t border-gray-900/10 mb-7"></div>
 
 
               
@@ -212,7 +175,7 @@ const handleDownload = () => {
               </div>  
  
 
-              <div className="my-4 border-t border-gray-900/50"></div>
+              <div className="my-4 border-t border-gray-900/10"></div>
 
 
                 <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between">
