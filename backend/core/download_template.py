@@ -265,7 +265,8 @@ def create_susc_pdf(request, scenario, map_type, map_path):
 
     for b in top_barangays:
         area_km2 = calculate_area_sq_km(b['extreme_count'])
-        text = f"{rank}. {b['barangay_name']} | {area_km2:.2f} m²"
+        display_area = f"{area_km2:.2f}" if area_km2 >= 0.01 else "< 0.01"
+        text = f"{rank}. {b['barangay_name']} | {display_area} km²"
         c.drawString(barangay_x + 0.1 * inch, y, text)
         y -= 0.15 * inch
         rank += 1
@@ -280,9 +281,9 @@ def create_susc_pdf(request, scenario, map_type, map_path):
     line_height = 0.12 * inch
 
     descriptions = [
-        ("Light Flooding:", "Minor water accumulation on low-lying roads."),
+        ("Low Flooding:", "Minor water accumulation on low-lying roads."),
         ("Medium Flooding:", "Noticeable flooding affecting roads."),
-        ("Heavy Flooding:", "Hazardous flooding affecting infrastructure."),
+        ("High Flooding:", "Hazardous flooding affecting infrastructure."),
         ("Extreme Flooding:", "Severe flooding with high damage potential.")
     ]
 

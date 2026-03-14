@@ -259,7 +259,7 @@ def create_res_pdf(request, scenario, map_type, map_path):
     descriptions = [
         ("Low:", "Stable; minor recovery needed."),
         ("Average:", "Disruptive; requires assistance."),
-        ("Strong:", "Critical; immediate intervention.")
+        ("High:", "Critical; immediate intervention.")
     ]
 
     for title, desc in descriptions:

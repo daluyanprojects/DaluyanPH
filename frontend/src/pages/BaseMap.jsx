@@ -6,6 +6,7 @@ import FloodPatchRes from "../components/flood_patch_hover/FloodPatchRes";
 import DaluyanGIF from "../assets/Daluyan.gif"
 import Logo from "../assets/Daluyan_PH_Logo.png"
 import { Link } from 'react-router-dom';
+import { GoHome } from "react-icons/go"; 
 
 const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
 
@@ -77,15 +78,20 @@ const handleMapGenerated = (data) => {
   return (
     <div className="flex h-screen bg-gray-50">
 
-      <header className="fixed top-0 left-0 w-full z-[1002] border-b border-gray-200 bg-white">
-      <div className="px-6 py-3 flex items-center">
-        <Link to="/">
-        <img src={Logo} alt="logo" className="h-6 w-auto"/>
+    <header className="fixed top-0 left-0 w-full z-[1002] border-b border-gray-200 bg-white">
+      <div className="px-6 py-3 flex items-center justify-between">
+          <img src={Logo} alt="logo" className="h-6 w-auto" />
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition"
+        >
+          <GoHome className="text-lg" />
+          <span className="text-sm font-medium">Home</span>
         </Link>
       </div>
     </header>
       
-      <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto z-[1001] relative mt-[60px]">
+      <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 overflow-y-auto z-[1001] relative h-[calc(100vh-60px)] mt-[60px]">
         {/* Pass pageId down to Config */}
        {ConfigComponent ? (
           <ConfigComponent

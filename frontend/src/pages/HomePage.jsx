@@ -12,6 +12,8 @@ import rizal from "../assets/rizal.jpg"
 import intra from "../assets/intra.jpg"
 import recto from "../assets/recto.jpg"
 
+import GuideLaunch from "../components/Guide/Guide";
+
 import { Link } from "react-router-dom";
 import { LayoutGrid, CloudRain, Map, Droplets } from 'lucide-react';
 
@@ -50,13 +52,13 @@ const HomePage = () => {
             </div>
             <nav className="hidden md:flex gap-10 font-medium">
               <a href="#home" className="hover:text-blue-200 transition-colors">Home</a>
+              <a href="#guide" className="hover:text-blue-200 transition-colors">Guide</a>
               <a href="#about" className="hover:text-blue-200 transition-colors">About Us</a>
               <a href="#contact" className="hover:text-blue-200 transition-colors">Contact Us</a>
             </nav>
         </div>
       </header>
 
-      {/* LAYER 4: Content */}
       <div className="relative z-10 flex flex-col items-center pt-20">
         <div className="text-center text-4xl md:text-6xl font-sans text-white pt-5 p-10 max-w-4xl"> 
           A data-driven platform for flood awareness, preparedness, and public safety. 
@@ -90,10 +92,16 @@ const HomePage = () => {
         </svg>
       </div>
     </section>
+
+    <section id="guide">
+      <div>
+        <GuideLaunch />
+      </div>
+    </section>
   
           
 
-    {/* SECTION 2  - ABOUT US */}
+    {/* SECTION 3  - ABOUT US */}
     <section id="about" className="relative w-full py-24 bg-white">
       <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         
@@ -153,7 +161,7 @@ const HomePage = () => {
       </div>
 </section>
 
-{/* SECTION 3 - CONTACT US */}
+{/* SECTION 4 - CONTACT US */}
 <section id="contact" className="relative overflow-hidden bg-gradient-to-b from-[#0f4c81] to-[#1e6fa8] text-white py-16 px-10">
   <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
     <img 

@@ -3,7 +3,7 @@ import React from 'react'
 const Legend = () => {
   return (
   
-  <div className="card bg-slate-800 text-neutral-content w-[250px] p-2 z-30 shadow-lg">
+  <div className="card bg-slate-800 text-neutral-content w-[230px] p-2 z-30 shadow-lg">
   <div className="card-body p-2 items-center text-center">
     <h2 className="card-title">Hazard Levels</h2>
     

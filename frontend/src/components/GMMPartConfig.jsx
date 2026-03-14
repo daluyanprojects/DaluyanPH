@@ -114,11 +114,11 @@ const handleDownload = () => {
 
 
 
-    <div className=" m-2 mb-3">
+    <div className="m-1 mb-3">
             <h2 className="text-blue-600 font-bold mb-1 text-lg">Simulation Control Panel</h2>
             <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-6">Workflow Setup & Parameters</p>
 
-            <div className="grid grid-cols-1 gap-4 text-[12px]">
+            <div className="grid grid-cols-1 gap-2 text-[12px]">
               {/* Row 1: Setup */}
               <div className="grid grid-cols-2 gap-1">
                 <div className="bg-slate-100/30 p-4 rounded-xl border border-slate-400/15">
@@ -159,18 +159,18 @@ const handleDownload = () => {
 
 
               
-                <div className="mb-3 bg-slate-900/95 p-1.5 rounded-lg border border-emerald-900/50 text-white text-[10px]  shadow-[0_8px_20px_rgba(0,0,0,0.45)] 
+                <div className="mb-3 bg-slate-900/95 p-1 rounded-lg border border-emerald-900/50 text-white text-[12px]  shadow-[0_8px_20px_rgba(0,0,0,0.45)] 
                   transform -translate-y-1">
                   <h2 className="text-blue-400 font-bold mb-1 border-b border-emerald-900/30 pb-1">
-                    Manila City - Analysis Definition
+                    Manila City - Analysis Guide
                   </h2>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1">
-                    <p><span className="text-slate-500 font-bold">Lat/Lng:</span> Area coordinates.</p>
-                    <p><span className="text-slate-500 font-bold">Hazard (S):</span> Flood probability.</p>
-                    <p><span className="text-slate-500 font-bold">Hazard (R):</span> Capacity to recover.</p>
-                    <p><span className="text-slate-500 font-bold">Barangay:</span> Local government unit.</p>
-                    <p><span className="text-slate-500 font-bold">Confidence:</span> Model reliability.</p>
-                    <p><span className="text-slate-500 font-bold">Economic Class:</span> Poverty/income level</p>
+                  <div className="grid grid-cols-2 gap-x-1 gap-y-2 mt-1">
+                    <p><span className="text-slate-400 font-bold">Lat/Lng:</span> Area coordinates.</p>
+                    <p><span className="text-slate-400 font-bold">Hazard (S):</span> Flood probability.</p>
+                    <p><span className="text-slate-400 font-bold">Hazard (R):</span> Capacity to recover.</p>
+                    <p><span className="text-slate-400 font-bold">Barangay:</span> Local government unit.</p>
+                    <p><span className="text-slate-400 font-bold">Confidence:</span> Model reliability.</p>
+                    <p><span className="text-slate-400 font-bold">Economic Class:</span> Poverty/income level</p>
                   </div>
               </div>  
  
@@ -229,56 +229,95 @@ const handleDownload = () => {
             )}
 
 
-            <div className="grid grid-cols-1 gap-3">
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-bold text-slate-500 ml-1">Rainfall Depth (mm) <DepthInfo /> </span>
-                <input 
-                    type="text" 
-                    className="input input-bordered w-full bg-slate-50" 
-                    value={depth} 
-                    onChange={(e) => setDepth(parseFloat(e.target.value) || 0)} 
-                    placeholder="e.g. 50"
-                />
-              </label>
+            <div className="grid grid-cols-1 gap-4">
 
-              {rainfallScenario === "triangular" && (
-                <label className="flex flex-col gap-1 animate-fadeIn">
-                  <span className="text-xs font-bold text-slate-500 ml-1">Triangular Peak (0.1 - 0.9)</span>
-                  <input 
-                    type="text"
-                    className="input input-bordered w-full bg-slate-50"
-                    value={tpeak}
-                    onChange={(e) => {
-                      const val = e.target.value;
+  {/* Rainfall Depth */}
+  <label className="flex flex-col gap-1">
+    <span className="text-xs font-bold text-slate-500 ml-1">
+      Rainfall Depth (mm) <DepthInfo />
+    </span>
 
-                      // Allow empty input or valid decimal numbers
-                      if (val === "" || /^(\d+(\.\d*)?)$/.test(val)) {
-                        setTpeak(val);
-                      }
-                    }}
-                  />
-                </label>
-              )}
-            </div>
+    <input
+      type="text"
+      value={depth}
+      onChange={(e) => {
+        const val = e.target.value;
+        if (val === "" || /^(\d+(\.\d*)?)$/.test(val)) {
+            setDepth(val);
+          }
 
-            {/* Buttons */}
-            <div className="pt-4 space-y-2">
-              <button 
-                className={`btn w-full ${mapType === 'resiliency' ? 'btn-secondary' : 'btn-primary'}`} 
-                type="submit" 
-                disabled={loading}
-              >
-                {loading ? <span className="loading loading-spinner"></span> : `SIMULATE ${mapType.toUpperCase()}`}
-              </button>
-              <button 
-                className="btn btn-outline btn-sm w-full" 
-                type="button" 
-                onClick={handleDownload} 
-                disabled={!lastFinishedID}
-              >
-                DOWNLOAD PDF
-              </button>
-            </div>
+      }}
+      placeholder="e.g. 78"
+      className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
+    />
+  </label>
+
+
+  {/* Triangular Peak */}
+  {rainfallScenario === "triangular" && (
+    <label className="flex flex-col gap-1 animate-fadeIn">
+      <span className="text-xs font-bold text-slate-500 ml-1">
+        Triangular Peak (0.1 – 0.9)
+      </span>
+
+      <input
+        type="text"
+        value={tpeak}
+        onChange={(e) => {
+          const val = e.target.value;
+
+          if (val === "" || /^(\d+(\.\d*)?)$/.test(val)) {
+            setTpeak(val);
+          }
+        }}
+        placeholder="e.g. 0.4"
+        className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
+      />
+    </label>
+  )}
+
+</div>
+
+
+{/* Buttons */}
+<div className="pt-4 space-y-2">
+
+  {/* Simulate */}
+  <button
+    type="submit"
+    disabled={loading}
+    className={`w-full rounded-md py-2 text-sm font-semibold transition
+      ${
+        mapType === "resiliency"
+          ? "bg-teal-600 hover:bg-teal-700 text-white"
+          : "bg-blue-600 hover:bg-blue-700 text-white"
+      }
+      disabled:opacity-50 disabled:cursor-not-allowed
+    `}
+  >
+    {loading ? "Processing..." : `SIMULATE ${mapType.toUpperCase()}`}
+  </button>
+
+
+  {/* Download */}
+  <button
+    type="button"
+    onClick={handleDownload}
+    disabled={!lastFinishedID}
+    className="w-full rounded-md border border-slate-300 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    DOWNLOAD PDF
+  </button>
+
+  <button
+  type="button"
+  onClick={() => window.location.reload()}
+  className="w-full rounded-md border border-slate-300 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
+>
+  GENERATE NEW SIMULATION
+</button>
+
+</div>
           </form>
         </div>
       </div>

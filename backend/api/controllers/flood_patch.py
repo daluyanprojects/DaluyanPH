@@ -45,7 +45,7 @@ class PatchDataView(APIView):
 
             patch = FloodPatch.objects.filter(
                 object_id=scenario.session_id,
-                location__distance_lte=(pnt, D(m=100)) 
+                location__distance_lte=(pnt, D(m=200)) 
             ).annotate(
                 distance=Distance('location', pnt)
             ).order_by('distance').first()
