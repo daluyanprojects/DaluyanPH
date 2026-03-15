@@ -1,37 +1,37 @@
 import React from "react";
 import ketsana from "../../assets/storm_satellite/ketsana.jpg";
-import karding from "../../assets/storm_satellite/karding.jpg";
-import pedring from "../../assets/storm_satellite/pedring.jpg";
+import carina from "../../assets/storm_satellite/carina.jpg";
+import paeng from "../../assets/storm_satellite/paeng.png";
 import ulysses from "../../assets/storm_satellite/ulyssses.png";
 
 const guideData = [
   {
     title: "SCS Front-Loaded",
-    storm: "Typhoon Ulysses",
-    image: ulysses,
+    storm: "Typhoon Ondoy",
+    image: ketsana,
     description:
-      "Most rainfall occurs early in the storm, producing an intense spike that can cause rapid runoff and flash flooding.",
+      "While Ondoy was a long-duration event the initial phases in Metro Manila exhibited frontloaded characteristics where the most extreme rainfall intensities occurred early in the day (the cloudburst phase), quickly overwhelming the citys drainage capacity before the storm had even reached its midpoint.",
   },
   {
     title: "SCS Balanced",
-    storm: "Typhoon Pedring",
-    image: pedring,
+    storm: "Typhoon Carina",
+    image: carina,
     description:
-      "Rainfall is distributed more evenly across the storm duration, producing moderate but sustained flooding.",
+      "Recent studies on the 2024 monsoon-enhanced typhoons show that while the total volume is high, many individual storm cells within the Habagat flow follow a balanced distribution, peaking as the core of a convective cell passes directly over a rain gauge",
   },
   {
     title: "SCS Back-Loaded",
-    storm: "Typhoon Karding",
-    image: karding,
+    storm: "Typhoon Ulysses",
+    image: ulysses,
     description:
-      "Rainfall builds gradually and peaks late in the storm; flooding may occur toward the end of the event.",
+      "Ulysses followed a series of other storms (like Rolly). By the time its heaviest backloaded bands hit Rizal and Marikina, the soil was already at 100% capacity. The peak rainfall at the tail end of the event caused the massive, rapid rise of the Marikina River.",
   },
   {
     title: "Chicago Triangular",
-    storm: "Typhoon Ondoy (Ketsana)",
-    image: ketsana,
+    storm: "Typhoon Paeng",
+    image: paeng,
     description:
-      "A synthetic design storm where rainfall intensity rises to a peak, then declines. The peak timing can be adjusted to test how rainfall timing affects flooding.",
+      "Paeng had convective bands that acted like triangular spikes. In just 30–60 minutes, a location would receive nearly 50–80mm of rain, overwhelming urban gutters instantly",
   },
 ];
 

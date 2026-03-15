@@ -26,7 +26,7 @@ try:
     )
     psgc_to_name = dict(zip(df['psgc'], df['name']))
     
-    # Fast Suffix Cache: handles the 100 vs 1307404100 mismatch
+    #  handles the 100 vs 1307404100 mismatch
     suffix_lookup = {str(psgc)[-3:]: name for psgc, name in psgc_to_name.items()}
     suffix_lookup.update({str(psgc)[-4:]: name for psgc, name in psgc_to_name.items()})
     
@@ -165,7 +165,11 @@ def run_ml_inference(record, page_name, scenario_id):
             os.makedirs(out_dir, exist_ok=True)
 
             # session 2 
-            cache.set(cache_key, 30, timeout=600)
+            cache.set(cache_key, 20, timeout=600)
+
+            for p in range(21, 70, 5):
+                cache.set(cache_key, p)
+                time.sleep(0.5)
 
 
             geojson_abs_path = str(settings.BASE_DIR / "ml" / "gmm_rainfall" / "manila_barangay_geojson.geojson")
@@ -185,7 +189,7 @@ def run_ml_inference(record, page_name, scenario_id):
             )
 
             # 3. ML Math finished, now processing file (70%)
-            cache.set(cache_key, 90, timeout=600)
+            cache.set(cache_key, 75, timeout=600)
             
             # Convert absolute result path to a relative path for Django's FileField/URL
             tif_abs = str(results["tif_path"])

@@ -15,6 +15,7 @@ from django.conf import settings
 from api.models import FloodPatch
 from django.contrib.contenttypes.models import ContentType
 from api.utils.ml_handler import process_resilience_to_db
+from django.core.cache import cache
 
 RESILIENCE_SCRIPT = os.path.join(
     os.path.dirname(__file__),
@@ -67,6 +68,8 @@ class RunResilienceView(APIView):
             env["PYTHONPATH"] = str(settings.BASE_DIR) + os.pathsep + env.get("PYTHONPATH", "")
 
             # Run the selected script
+            cache_key = f"progress_{session_id}"
+            cache.set(cache_key, 85)
             result = subprocess.run(
                 [
                     sys.executable,
@@ -82,6 +85,7 @@ class RunResilienceView(APIView):
             )
 
             if result.returncode != 0:
+                cache.set(cache_key, 95)
                 print(f"SCRIPT ERROR: {result.stderr}")
                 return Response({"error": result.stderr}, status=500)
 
