@@ -6,7 +6,6 @@ const ModelLaunch = ({ title, subtitle, launchLink, Icon }) => {
   return (
     <div className="relative aspect-[10/9] w-full max-w-[450px] bg-slate-900/40 backdrop-blur-md border border-slate-700 p-5 rounded-2xl flex flex-col items-center text-center transition-all duration-500 hover:-translate-y-2 hover:border-sky-950 group shadow-3xl">
     
-      {/* TOP CONTENT: Icon & Text */}
       <div className="relative z-10 flex items-center gap-5 mb-6 ml-2">
         <div className="p-3.5 bg-transparent border-2 border-white/80 rounded-2xl flex items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 group shadow-2xl">
           {Icon && <Icon size={40} strokeWidth={1.5} className="text-white" />}

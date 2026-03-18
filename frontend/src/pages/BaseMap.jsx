@@ -2,11 +2,15 @@
 import { useState, useEffect } from "react";
 import GeoMap from "../components/GeoMap";
 import FloodPatch from "../components/flood_patch_hover/FloodPatch";
+import Extreme_brgy from "../components/map_pop_up/Extreme_brgy"; 
+import axios from "axios"; 
+
 import FloodPatchRes from "../components/flood_patch_hover/FloodPatchRes";
 import DaluyanGIF from "../assets/Daluyan.gif"
 import Logo from "../assets/Daluyan_PH_Logo.png"
 import { Link } from 'react-router-dom';
 import { GoHome } from "react-icons/go"; 
+
 
 const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
 
@@ -17,6 +21,7 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
   const [showWaterMarkers, setShowWaterMarkers] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isBuildingsOn, setIsBuildingsOn] = useState(false)
+  const [extremeStats, setExtremeStats] = useState([]);
 
 
   useEffect(() => {
@@ -74,6 +79,29 @@ const handleMapGenerated = (data) => {
   };
 
 
+useEffect(() => {
+    let isMounted = true;
+    const fetchStats = async () => {
+      if (progress === 100 && currentSessionID) {
+        try {
+          const res = await axios.get(`http://localhost:8000/daluyan-map/extreme-barangays/`, {
+            params: { sessionId: currentSessionID }
+          });
+          
+          if (isMounted) {
+            setExtremeStats(res.data.top_extreme_barangays);
+          }
+        } catch (err) {
+          console.error("XHR Error:", err.message);
+        }
+      }
+    };
+
+    fetchStats();
+
+    return () => { isMounted = false; }; 
+  }, [progress, currentSessionID]);
+
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -92,7 +120,6 @@ const handleMapGenerated = (data) => {
     </header>
       
       <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 overflow-y-auto z-[1001] relative h-[calc(100vh-60px)] mt-[60px]">
-        {/* Pass pageId down to Config */}
        {ConfigComponent ? (
           <ConfigComponent
             setLoading={setLoading} 
@@ -114,6 +141,9 @@ const handleMapGenerated = (data) => {
       <div className="flex-1 flex flex-col relative min-w-0 ">
 
         <div className="flex-1 bg-slate-400 min-h-[400px] w-full flex items-center justify-center relative">
+            <div className="absolute top-4 right-4 z-[9999]"> 
+              <Extreme_brgy stats={extremeStats} />
+            </div>
             <GeoMap 
                 mapVersion={mapVersion} 
                 mapType={mapType} // Dynamic: susceptibility or resiliency
