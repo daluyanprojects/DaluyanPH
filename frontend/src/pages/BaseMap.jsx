@@ -9,7 +9,8 @@ import FloodPatchRes from "../components/flood_patch_hover/FloodPatchRes";
 import DaluyanGIF from "../assets/Daluyan.gif"
 import Logo from "../assets/Daluyan_PH_Logo.png"
 import { Link } from 'react-router-dom';
-import { GoHome } from "react-icons/go"; 
+import { GoHome } from "react-icons/go";
+import barangayDataUrl from "../assets/data/manila_barangay_clean.geojson?url";
 
 
 const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
@@ -22,6 +23,24 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
   const [progress, setProgress] = useState(0);
   const [isBuildingsOn, setIsBuildingsOn] = useState(false)
   const [extremeStats, setExtremeStats] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [geoJsonData, setGeoJsonData] = useState(null);
+
+  // Load the clean GeoJSON (already has psgc_code as string + district tags)
+  useEffect(() => {
+    fetch(barangayDataUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        setGeoJsonData(data);
+        console.log(
+          "[BaseMap] GeoJSON loaded:",
+          data.features.length,
+          "features, sample:",
+          data.features[0]?.properties
+        );
+      })
+      .catch((err) => console.error("GeoJSON load error:", err));
+  }, []);
 
 
   useEffect(() => {
@@ -102,7 +121,7 @@ useEffect(() => {
     return () => { isMounted = false; }; 
   }, [progress, currentSessionID]);
 
-
+  console.log("Is GeoJSON loaded?", !!geoJsonData);
   return (
     <div className="flex h-screen bg-gray-50">
 
@@ -132,6 +151,7 @@ useEffect(() => {
             isWaterOn = {showWaterMarkers}
             onToggleBuilding={setIsBuildingsOn} 
             isBuildingsOn={isBuildingsOn}
+            onDistrictChange={setSelectedDistrict}
 
           />
         ) : <p>Loading Config...</p>}
@@ -152,6 +172,8 @@ useEffect(() => {
                 pageName={pageName}    
                 showWaterMarkers={showWaterMarkers}
                 isBuildingsOn={isBuildingsOn}
+                barangayGeojson={geoJsonData}
+                selectedDistrict={selectedDistrict}
               />
             {hoverData && (
                 hoverData.mapType === "resiliency" 

@@ -9,26 +9,17 @@ from django.http import FileResponse
 from django.conf import settings
 import logging
 import os
-
 from api.utils.ml_handler import run_ml_inference
-
-# Models and serializers
 from api.models import (
-    ManilaQuadrantScenario, ManilaPartitionScenario,
-    GMMQuadrantScenario, GMMPartitionScenario
+    GMMPartitionScenario
 )
 from api.serializers.scenario_serializer import (
-    ManilaQuadrantSerializer, ManilaPartitionSerializer,
-    GMMQuadrantSerializer, GMMPartitionSerializer
+    GMMPartitionSerializer
 )
 
-# HELPER
 def get_model_and_serializer(page_name):
     """Helper to map page names to specific database models and serializers."""
     mapping = {
-        "manila-quadrant": (ManilaQuadrantScenario, ManilaQuadrantSerializer),
-        "manila-partition": (ManilaPartitionScenario, ManilaPartitionSerializer),
-        "gmm-quadrant": (GMMQuadrantScenario, GMMQuadrantSerializer),
         "gmm-partition": (GMMPartitionScenario, GMMPartitionSerializer),
     }
     return mapping.get(page_name, (None, None))
@@ -42,7 +33,6 @@ class CreateMapView(APIView):
         data = request.data.copy()
         page_name = data.get("page_name")
         
-        # Call the shared helper (no 'self.')
         ModelClass, SerializerClass = get_model_and_serializer(page_name)
 
         if not ModelClass:
@@ -60,7 +50,6 @@ class CreateMapView(APIView):
 
 
             if ml_success:
-                # Return the updated data (which now includes the map_url)
                 return Response(SerializerClass(scenario).data, status=status.HTTP_201_CREATED)
             else:
                 return Response({"error": "ML Inference failed"}, status=500)
@@ -74,8 +63,7 @@ class GetMapView(APIView):
     def get(self, request):
         session_id = request.query_params.get("sessionId")
         page_name = request.query_params.get("page_name")
-        
-        # 2. FIXED: Use the shared helper here too
+    
         ModelClass, SerializerClass = get_model_and_serializer(page_name)
         
         if not ModelClass:
@@ -88,6 +76,6 @@ class GetMapView(APIView):
                 return Response({"error": "TIF not found"}, status=404)
             return FileResponse(scenario.tif_file.open('rb'), content_type='image/tiff')
 
-        # 3. FIXED: Use the SerializerClass found by the helper
+        
         serializer = SerializerClass(scenario)
         return Response(serializer.data)

@@ -1,6 +1,6 @@
 #api/controller/building_hover.py
 import os
-import json # <--- ADD THIS
+import json 
 from django.conf import settings
 from django.http import JsonResponse
 from rest_framework.views import APIView

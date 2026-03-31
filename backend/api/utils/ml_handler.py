@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction 
 from api.models import FloodPatch
-from ml.manila_quadrant.ml_handler_logic import run_manila_quadrant_inference
 import sys
 from pyproj import Transformer
 from django.core.cache import cache
@@ -18,9 +17,10 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 try:
+    csv_path = Path(settings.BASE_DIR) / "ml" / "manila_datasets" / "manila_barangays" / "filtered_psgc_lookup.csv"
     df = pd.read_csv(
-        'ml\\resilience\\manila_barangays\\filtered_psgc_lookup.csv', 
-        header=0, 
+        csv_path,
+        header=0,
         names=['psgc', 'name'],
         dtype={'psgc': int}
     )
@@ -125,7 +125,7 @@ def process_resilience_to_db(tif_path, session_id, record):
 
 # --- 3. ML DISPATCHER ---
 def run_ml_inference(record, page_name, scenario_id):
-    mask_path = settings.BASE_DIR / "ml" / "gmm_rainfall" / "manila_box_shape.tif"
+    mask_path = settings.BASE_DIR / "ml" / "manila_datasets" / "manila_box_shape.tif"
     #start progress 
     cache_key = f"progress_{record.session_id}"
     cache.set(cache_key, 10, timeout=600)
@@ -144,11 +144,9 @@ def run_ml_inference(record, page_name, scenario_id):
         ml_config["rainfall"] = getattr(record, 'rainfall', 'low').lower()
     try:
         relative_path = None
-        # Start with just Manila to verify the pipeline works
-        if page_name == "manila-quadrant":
-            relative_path = run_manila_quadrant_inference(ml_config, record.session_id)
+       
         
-        elif page_name == "gmm-partition":
+        if page_name == "gmm-partition":
             run_gmm = _get_gmm_rainfall_runner()
 
             # Data from the Scenario record
@@ -172,7 +170,7 @@ def run_ml_inference(record, page_name, scenario_id):
                 time.sleep(0.5)
 
 
-            geojson_abs_path = str(settings.BASE_DIR / "ml" / "gmm_rainfall" / "manila_barangay_geojson.geojson")
+            geojson_abs_path = str(settings.BASE_DIR / "ml" / "manila_datasets" / "manila_barangay_geojson.geojson")
             ml_base = settings.BASE_DIR / "ml" / "gmm_rainfall"
             suffix = "" if agent_type == 'vehicle' else "_ped"
             spatial_data_abs_path = str(ml_base / f"outputs{suffix}" / "spatial_data.npz")

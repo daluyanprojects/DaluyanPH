@@ -1,7 +1,9 @@
 #api/utils/pasgc_helper.py
 import csv
-import os
-CSV_PATH = r".\ml\resilience\manila_barangays\filtered_psgc_lookup.csv"
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+CSV_PATH = BASE_DIR / "ml" / "manila_datasets" / "manila_barangays" / "filtered_psgc_lookup.csv"
 PSGC_LOOKUP = {}
 # Load once when Django starts
 with open(CSV_PATH, newline="", encoding="utf-8") as f:

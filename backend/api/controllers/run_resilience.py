@@ -8,8 +8,6 @@ from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from api.models import ManilaQuadrantScenario, GMMQuadrantScenario
-from api.serializers.scenario_serializer import ManilaQuadrantSerializer, GMMQuadrantSerializer
 from api.controllers.daluyan_map import get_model_and_serializer
 from django.conf import settings
 from api.models import FloodPatch
@@ -19,7 +17,7 @@ from django.core.cache import cache
 
 RESILIENCE_SCRIPT = os.path.join(
     os.path.dirname(__file__),
-    "../../ml/resilience/resilience_main.py"
+    "../../ml/gmm_rainfall/main_resilience.py"
 )
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -42,9 +40,7 @@ class RunResilienceView(APIView):
                     settings.BASE_DIR, "ml", "gmm_rainfall", "main_resilience.py"
                 )
             else:
-                script_path = os.path.join(
-                    settings.BASE_DIR, "ml", "resilience", "resilience_main.py"
-                )
+                return Response({"error": "Unsupported page_name"}, status=400)
 
             ModelClass, SerializerClass = get_model_and_serializer(page_name)
 
