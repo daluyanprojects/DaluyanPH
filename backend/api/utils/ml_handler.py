@@ -13,6 +13,7 @@ from django.core.cache import cache
 import time
 import numpy as np
 from pathlib import Path
+from ml.gmm_rainfall.main import run_complete_testing
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,6 @@ try:
     )
     psgc_to_name = dict(zip(df['psgc'], df['name']))
     
-    #  handles the 100 vs 1307404100 mismatch
     suffix_lookup = {str(psgc)[-3:]: name for psgc, name in psgc_to_name.items()}
     suffix_lookup.update({str(psgc)[-4:]: name for psgc, name in psgc_to_name.items()})
     
@@ -37,13 +37,11 @@ except Exception as e:
     suffix_lookup = {}
 
 def _get_gmm_rainfall_runner():
-    # Ensure this points to the folder containing your main.py
+    # Ensure
     gmm_path = os.path.join(settings.BASE_DIR, "ml", "gmm_rainfall") 
     if gmm_path not in sys.path:
         sys.path.insert(0, gmm_path)
     
-    # Change 'gmm_quadrant' to 'gmm_rainfall' to match your folder structure
-    from ml.gmm_rainfall.main import run_complete_testing
     return run_complete_testing
 
 def process_resilience_to_db(tif_path, session_id, record):
@@ -81,7 +79,7 @@ def process_resilience_to_db(tif_path, session_id, record):
 
                 if is_resiliency:
                     poverty_val = float(poverty_band[row, col]) if poverty_band is not None else None
-                    conf_val = 1.0 # Default/Not applicable for Resiliency
+                    conf_val = 1.0 
                 else:
                     poverty_val = None
                     raw_conf = float(confidence_band[row, col]) if confidence_band is not None else 1000.0
@@ -90,10 +88,10 @@ def process_resilience_to_db(tif_path, session_id, record):
 
     
                 if risk_val != 255 and psgc_val > 0:
-                    # Get projected X, Y (in meters)
+                    
                     x_meters, y_meters = affine * (col, row)
                     
-                    # 2. TRANSFORM TO LAT/LNG
+                    # TRANSFORM TO LAT/LNG
                     lng, lat = transformer.transform(x_meters, y_meters)
                     
                     try:
@@ -113,8 +111,8 @@ def process_resilience_to_db(tif_path, session_id, record):
                         depth=float(risk_val),
                         poverty=poverty_val if poverty_val != -9999.0 else None,
                         confidence=conf_val,
-                        lat=lat, # This will now be ~14.5
-                        lng=lng, # This will now be ~120.9
+                        lat=lat, 
+                        lng=lng, 
                         location=f"POINT({lng} {lat})"
                     ))
 
@@ -168,7 +166,6 @@ def run_ml_inference(record, page_name, scenario_id):
             for p in range(21, 70, 5):
                 cache.set(cache_key, p)
                 time.sleep(0.5)
-
 
             geojson_abs_path = str(settings.BASE_DIR / "ml" / "manila_datasets" / "manila_barangay_geojson.geojson")
             ml_base = settings.BASE_DIR / "ml" / "gmm_rainfall"

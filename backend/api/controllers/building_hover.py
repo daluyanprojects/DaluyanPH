@@ -14,6 +14,7 @@ class BuildingLayerView(APIView):
         shp_path = os.path.join(
             settings.BASE_DIR, 
             'ml', 
+            'manila_datasets',
             'manila_buildings', 
             'final_manila_building_daluyan.shp'
         )
