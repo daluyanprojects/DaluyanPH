@@ -3,21 +3,31 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { Link } from 'react-router-dom';
-import Navbar2 from "../components/navbars/Navbar2";
 import UserDropdown from "../utils/UserDropdown";
-import { Info } from "lucide-react";
+import { ChevronDown, ChevronUp, Info } from "lucide-react";
 import RainfallScenarioInfo from "../components/Info_Cards/RainScenarioInfo";
 import RainfallScenario from "../utils/RainfallScenario"
 import DepthInfo from "./Info_Cards/depth_info";
+import HomeIcon from "../assets/home.png"
+import Logo from "../assets/Daluyan_PH_Logo.png"
+import { DISTRICT_BARANGAYS } from "../constants/districts";
 
 
 
-function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionID, pageName, mapType, onToggleWater, isWaterOn, isBuildingsOn, onToggleBuilding }) {
+function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionID, pageName, mapType, onToggleWater, isWaterOn, isBuildingsOn, onToggleBuilding, onDistrictChange }) {
   const [rainfallScenario, setRainfallScenario] = useState("");
   const [agentType, setAgentType] = useState("");
   const [depth, setDepth] = useState(0);
   const [tpeak, setTpeak] = useState(0);
   const [lastFinishedID, setLastFinishedID] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  const handleDistrictChange = (e) => {
+    const val = e.target.value;
+    setSelectedDistrict(val);
+    if (onDistrictChange) onDistrictChange(val); 
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,10 +96,9 @@ const handleDownload = () => {
 };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white">
         <div className="w-full max-w-md bg-white flex flex-col mx-auto shadow-md">  
-            <Navbar2 />
-            <div className="p-5 flex-1 flex flex-col justify-between">
+            <div className="p-4 flex-1 flex flex-col justify-between">
             <div className= "mb-4">
               <h3 className="text-slate-900 font-bold mb-2">Manila Susceptability & Resiliency</h3>
             <p className="text-sm text-slate-600 mb-4 leading-relaxed">
@@ -109,71 +118,120 @@ const handleDownload = () => {
             </div>
             
 
+            <div className="my-4 border-t border-gray-900/10"></div>
 
 
 
-    <div className=" m-2 mb-5">
-            <h2 className="text-blue-600 font-bold mb-1 text-lg">Simulation Control Panel</h2>
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-6">Workflow Setup & Parameters</p>
 
-            <div className="grid grid-cols-1 gap-4 text-[12px]">
-              {/* Row 1: Setup */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-100 p-4 rounded-xl border border-slate-400">
-                  <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">1. Rainfall <RainfallScenarioInfo /></span>
-                  <p className="text-slate-600 leading-snug">Choose Chicago or SCS method.</p>
-                </div>
-                <div className="bg-[#6ab9b4]/15 p-4 rounded-xl border border-[#50a09b]">
-                  <span className="font-bold text-blue-600 block mb-1 uppercase text-[10px]">2. Depth <DepthInfo /></span>
-                  <p className="text-slate-600 leading-snug">Set limit.</p>
-                </div>
+    <div className="m-1 mb-3">
+        <button
+          type="button"
+          onClick={() => setIsPanelOpen(prev => !prev)}
+          className="w-full flex items-center justify-between group mb-1"
+        >
+          <div>
+            <h2 className="text-blue-600 font-bold text-lg text-left">Simulation Control Panel</h2>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest text-left">
+              Workflow Setup & Parameters
+            </p>
+          </div>
+          <div className="text-slate-400 group-hover:text-blue-500 transition">
+            {isPanelOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </div>
+        </button>
+
+        {isPanelOpen && (
+          <div className="grid grid-cols-1 gap-2 text-[12px] mt-2">
+            {/* Row 1: Setup */}
+            <div className="grid grid-cols-2 gap-1">
+              <div className="bg-slate-100/30 p-4 rounded-xl border border-slate-400/15">
+                <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">1. Rainfall <RainfallScenarioInfo /></span>
+                <p className="text-slate-600 leading-snug">Choose Chicago or SCS method.</p>
               </div>
-
-              {/* Row 2: Analysis Mode */}
-              <div className="bg-slate-100 p-4 rounded-xl border border-slate-400">
-                <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">3. Analysis Mode</span>
-                <p className="text-slate-600 leading-tight">
-                  Toggle <span className="font-semibold text-slate-900">Susceptibility</span> (depth) or 
-                  <span className="font-semibold text-slate-900"> Resiliency</span> (capacity).
-                </p>
+              <div className="bg-[#6ab9b4]/5 p-4 rounded-xl border border-[#50a09b]/10">
+                <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">2. Depth <DepthInfo /></span>
+                <p className="text-slate-600 leading-snug">Set limit.</p>
               </div>
-
-          {/* Row 3: Final Steps */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-[#6ab9b4]/15  p-4 rounded-xl border border-[#50a09b]">
-              <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">4. User Type</span>
-              <p className="text-slate-600 leading-snug">Weight for Pedestrian or Vehicular movement (Susceptibility only).</p>
             </div>
-            <div className="bg-blue-50/80 p-4 rounded-xl border-2 border-blue-500 flex items-center justify-center text-center">
-              <p className="text-blue-600 font-bold uppercase tracking-widest text-xs">5. Simulate</p>
+
+            {/* Row 2: Analysis Mode */}
+            <div className="bg-slate-100/50 p-4 rounded-xl border border-slate-400/10">
+              <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">3. Analysis Mode</span>
+              <p className="text-slate-600 leading-tight">
+                Toggle <span className="font-semibold text-slate-900">Susceptibility</span> (depth) or
+                <span className="font-semibold text-slate-900"> Resiliency</span> (capacity).
+              </p>
+            </div>
+
+            {/* Row 3: Final Steps */}
+            <div className="grid grid-cols-2 gap-1">
+              <div className="bg-[#6ab9b4]/5 p-4 rounded-xl border border-[#50a09b]/10">
+                <span className="font-bold text-slate-600 block mb-1 uppercase text-[10px]">4. User Type</span>
+                <p className="text-slate-600 leading-snug">Weight for Pedestrian or Vehicular movement (Susceptibility only).</p>
+              </div>
+              <div className="bg-blue-50/50 p-4 rounded-xl border-2 border-blue-500/10 flex items-center justify-center text-center">
+                <p className="text-blue-900 font-bold uppercase tracking-widest text-xs">5. Simulate</p>
+              </div>
             </div>
           </div>
-        </div>
-    </div>
+        )}
+</div>
 
 
+    <div className="my-4 border-t border-gray-900/10 mb-7"></div>
 
-                <div className="mb-3 bg-slate-900/95 p-1.5 rounded-lg border border-emerald-900/50 text-white text-[10px]">
+
+              
+                <div className="mb-3 bg-slate-900/95 p-1 rounded-lg border border-emerald-900/50 text-white text-[12px]  shadow-[0_8px_20px_rgba(0,0,0,0.45)] 
+                  transform -translate-y-1">
                   <h2 className="text-blue-400 font-bold mb-1 border-b border-emerald-900/30 pb-1">
-                    Manila City - Analysis
+                    Manila City - Analysis Guide
                   </h2>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 mt-1">
-                    <p><span className="text-slate-500 font-bold">Lat/Lng:</span> Area coordinates.</p>
-                    <p><span className="text-slate-500 font-bold">Hazard (S):</span> Flood probability.</p>
-                    <p><span className="text-slate-500 font-bold">Hazard (R):</span> Capacity to recover.</p>
-                    <p><span className="text-slate-500 font-bold">Barangay:</span> Local government unit.</p>
-                    <p><span className="text-slate-500 font-bold">Confidence:</span> Model reliability.</p>
-                    <p><span className="text-slate-500 font-bold">Economic Class:</span> Poverty/income level</p>
+                  <div className="grid grid-cols-2 gap-x-1 gap-y-2 mt-1">
+                    <p><span className="text-slate-400 font-bold">Lat/Lng:</span> Area coordinates.</p>
+                    <p><span className="text-slate-400 font-bold">Hazard (S):</span> Flood probability.</p>
+                    <p><span className="text-slate-400 font-bold">Hazard (R):</span> Capacity to recover.</p>
+                    <p><span className="text-slate-400 font-bold">Barangay:</span> Local government unit.</p>
+                    <p><span className="text-slate-400 font-bold">Confidence:</span> Model reliability.</p>
+                    <p><span className="text-slate-400 font-bold">Economic Class:</span> Poverty/income level</p>
                   </div>
-              </div>     
+              </div>  
+ 
 
-              <div className="my-4 border-t border-gray-900/50"></div>
+              <div className="my-4 border-t border-gray-900/10"></div>
 
 
-                <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between">
+
+
+          <div className="bg-blue-50/30 p-3 rounded-lg border border-blue-100 mb-3 mt-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500 mb-2">
+                Geographic Filter
+              </p>
+              <label className="flex flex-col gap-1">
+                <span className="text-xs font-semibold text-slate-700 ml-1">Manila's District</span>
+                <select 
+                  value={selectedDistrict}
+                  onChange={handleDistrictChange}
+                  className="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"
+                >
+                  <option value="">Full Manila Map</option>
+                  {Object.keys(DISTRICT_BARANGAYS).map((district) => (
+                    <option key={district} value={district}>
+                      {district}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[9px] text-slate-500 mt-1 italic">
+                  *Selecting a district will highlight its boundaries on the hazard map.
+                </p>
+              </label>
+            </div>
+
+
                         
 
-            {/* Map Type Toggle - Reuse logic like ManilaQuadConfig */}
+            {/* Map Type Toggle*/}
             <div className="text-center">
               <p className="font-semibold mb-2 text-sm">Type of map</p>
               <div className="flex gap-2 items-center justify-center">
@@ -203,8 +261,8 @@ const handleDownload = () => {
 
 
             {mapType === "resiliency" && (
-              <div className="bg-slate-50 p-3 rounded-lg border mb-3 mt-4">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Building Layer</p>
+              <div className="bg-slate-50 p-3 rounded-lg border mb-2 mt-0">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4">Building Layer</p>
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-sm font-semibold text-slate-700">Show Buildings</span>
                 <input type="checkbox" className="toggle toggle-primary toggle-sm" checked={isBuildingsOn} onChange={() => onToggleBuilding(!isBuildingsOn)} />
@@ -212,7 +270,12 @@ const handleDownload = () => {
             </div>
             )}
 
-            <RainfallScenario value={rainfallScenario} onChange={setRainfallScenario} region="gmm" />
+
+            <div className="mt-4">
+              <RainfallScenario value={rainfallScenario} onChange={setRainfallScenario} region="gmm" />
+            </div>
+
+            
 
             {mapType === "susceptibility" && (
               <div className="animate-fadeIn">
@@ -221,56 +284,95 @@ const handleDownload = () => {
             )}
 
 
-            <div className="grid grid-cols-1 gap-3">
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-bold text-slate-500 ml-1">Rainfall Depth (mm) <DepthInfo /> </span>
-                <input 
-                    type="text" 
-                    className="input input-bordered w-full bg-slate-50" 
-                    value={depth} 
-                    onChange={(e) => setDepth(parseFloat(e.target.value) || 0)} 
-                    placeholder="e.g. 50"
-                />
-              </label>
+            <div className="grid grid-cols-1 gap-4">
 
-              {rainfallScenario === "triangular" && (
-                <label className="flex flex-col gap-1 animate-fadeIn">
-                  <span className="text-xs font-bold text-slate-500 ml-1">Triangular Peak (0.1 - 0.9)</span>
-                  <input 
-                    type="text"
-                    className="input input-bordered w-full bg-slate-50"
-                    value={tpeak}
-                    onChange={(e) => {
-                      const val = e.target.value;
+  {/* Rainfall Depth */}
+  <label className="flex flex-col gap-1">
+    <span className="text-xs font-bold text-slate-500 ml-1">
+      Rainfall Depth (mm) <DepthInfo />
+    </span>
 
-                      // Allow empty input or valid decimal numbers
-                      if (val === "" || /^(\d+(\.\d*)?)$/.test(val)) {
-                        setTpeak(val);
-                      }
-                    }}
-                  />
-                </label>
-              )}
-            </div>
+    <input
+      type="text"
+      value={depth}
+      onChange={(e) => {
+        const val = e.target.value;
+        if (val === "" || /^(\d+(\.\d*)?)$/.test(val)) {
+            setDepth(val);
+          }
 
-            {/* Buttons */}
-            <div className="pt-4 space-y-2">
-              <button 
-                className={`btn w-full ${mapType === 'resiliency' ? 'btn-secondary' : 'btn-primary'}`} 
-                type="submit" 
-                disabled={loading}
-              >
-                {loading ? <span className="loading loading-spinner"></span> : `SIMULATE ${mapType.toUpperCase()}`}
-              </button>
-              <button 
-                className="btn btn-outline btn-sm w-full" 
-                type="button" 
-                onClick={handleDownload} 
-                disabled={!lastFinishedID}
-              >
-                DOWNLOAD PDF
-              </button>
-            </div>
+      }}
+      placeholder="e.g. 78"
+      className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
+    />
+  </label>
+
+
+  {/* Triangular Peak */}
+  {rainfallScenario === "triangular" && (
+    <label className="flex flex-col gap-1 animate-fadeIn">
+      <span className="text-xs font-bold text-slate-500 ml-1">
+        Triangular Peak (0.1 – 0.9)
+      </span>
+
+      <input
+        type="text"
+        value={tpeak}
+        onChange={(e) => {
+          const val = e.target.value;
+
+          if (val === "" || /^(\d+(\.\d*)?)$/.test(val)) {
+            setTpeak(val);
+          }
+        }}
+        placeholder="e.g. 0.4"
+        className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition"
+      />
+    </label>
+  )}
+
+</div>
+
+
+{/* Buttons */}
+<div className="pt-4 space-y-2">
+
+  {/* Simulate */}
+  <button
+    type="submit"
+    disabled={loading}
+    className={`w-full rounded-md py-2 text-sm font-semibold transition
+      ${
+        mapType === "resiliency"
+          ? "bg-teal-600 hover:bg-teal-700 text-white"
+          : "bg-blue-600 hover:bg-blue-700 text-white"
+      }
+      disabled:opacity-50 disabled:cursor-not-allowed
+    `}
+  >
+    {loading ? "Processing..." : `SIMULATE ${mapType.toUpperCase()}`}
+  </button>
+
+
+  {/* Download */}
+  <button
+    type="button"
+    onClick={handleDownload}
+    disabled={!lastFinishedID}
+    className="w-full rounded-md border border-slate-300 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    DOWNLOAD PDF
+  </button>
+
+  <button
+  type="button"
+  onClick={() => window.location.reload()}
+  className="w-full rounded-md border border-slate-300 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
+>
+  GENERATE NEW SIMULATION
+</button>
+
+</div>
           </form>
         </div>
       </div>

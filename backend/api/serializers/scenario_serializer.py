@@ -1,10 +1,8 @@
 # validates frontend data before saving
 # convert data to json format so react can read it 
-
 from rest_framework import serializers
 from api.models import (
-    ManilaQuadrantScenario, ManilaPartitionScenario,
-    GMMQuadrantScenario, GMMPartitionScenario
+    GMMPartitionScenario
 )
 from api.models import WaterBody
 
@@ -18,29 +16,11 @@ class BaseSerializer(serializers.ModelSerializer):
             "agent",
             "created_at",
             "dem",
-            "is_soil",
-            "is_drainage",
             "map_url",
             "tif_file",
         ]
 
 # inherit base serializer
-class ManilaQuadrantSerializer(BaseSerializer):
-    class Meta(BaseSerializer.Meta):
-        model = ManilaQuadrantScenario
-        fields = BaseSerializer.Meta.fields + ['rainfall']
-
-
-class ManilaPartitionSerializer(BaseSerializer):
-    class Meta(BaseSerializer.Meta):
-        model = ManilaPartitionScenario
-        fields = BaseSerializer.Meta.fields + ['rainfall_scenario', 'is_land_use', 'is_infiltration']
-
-class GMMQuadrantSerializer(BaseSerializer):
-    class Meta(BaseSerializer.Meta):
-        model = GMMQuadrantScenario
-        fields = BaseSerializer.Meta.fields + ['rainfall', 'is_land_use', 'is_infiltration']
-
 class GMMPartitionSerializer(BaseSerializer):
     class Meta(BaseSerializer.Meta):
         model = GMMPartitionScenario

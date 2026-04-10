@@ -6,8 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from api.models import (
-    ManilaQuadrantScenario, ManilaPartitionScenario,
-    GMMQuadrantScenario, GMMPartitionScenario,
+    GMMPartitionScenario,
     FloodPatch
 )
 from uuid import UUID
@@ -18,9 +17,6 @@ class PatchDataView(APIView):
 
     def get_model_class(self, page_name):
         mapping = {
-            "manila-quadrant": ManilaQuadrantScenario,
-            "manila-partition": ManilaPartitionScenario,
-            "gmm-quadrant": GMMQuadrantScenario,
             "gmm-partition": GMMPartitionScenario,
         }
         return mapping.get(page_name)
@@ -30,9 +26,6 @@ class PatchDataView(APIView):
         lat = request.data.get("lat")
         lng = request.data.get("lng")
         page_name = request.data.get("page_name")
-
-        #print(f"--- HOVER DEBUG ---")
-        #print(f"Scenario: {scenario_id} | Point: ({lng}, {lat})")
 
         ModelClass = self.get_model_class(page_name)
         if not ModelClass or lat is None or lng is None:
@@ -45,13 +38,12 @@ class PatchDataView(APIView):
 
             patch = FloodPatch.objects.filter(
                 object_id=scenario.session_id,
-                location__distance_lte=(pnt, D(m=100)) 
+                location__distance_lte=(pnt, D(m=200)) 
             ).annotate(
                 distance=Distance('location', pnt)
             ).order_by('distance').first()
 
             if patch:
-                #print(f"✅ Found Patch: {patch.barangay_name} | Dist: {patch.distance.m:.2f}m")
                 # Get the raw value from the database
                 raw_poverty = patch.poverty
                 processed_poverty = -9999.0 # Default fallback

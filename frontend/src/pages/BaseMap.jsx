@@ -2,8 +2,16 @@
 import { useState, useEffect } from "react";
 import GeoMap from "../components/GeoMap";
 import FloodPatch from "../components/flood_patch_hover/FloodPatch";
+import Extreme_brgy from "../components/map_pop_up/Extreme_brgy"; 
+import axios from "axios"; 
+
 import FloodPatchRes from "../components/flood_patch_hover/FloodPatchRes";
 import DaluyanGIF from "../assets/Daluyan.gif"
+import Logo from "../assets/Daluyan_PH_Logo.png"
+import { Link } from 'react-router-dom';
+import { GoHome } from "react-icons/go";
+import barangayDataUrl from "../assets/data/manila_barangay_clean.geojson?url";
+
 
 const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
 
@@ -14,6 +22,25 @@ const BaseMap = ({ pageName, mapType, ConfigComponent, LegendConfig}) => {
   const [showWaterMarkers, setShowWaterMarkers] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isBuildingsOn, setIsBuildingsOn] = useState(false)
+  const [extremeStats, setExtremeStats] = useState([]);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [geoJsonData, setGeoJsonData] = useState(null);
+
+  // Load the clean GeoJSON (already has psgc_code as string + district tags)
+  useEffect(() => {
+    fetch(barangayDataUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        setGeoJsonData(data);
+        console.log(
+          "[BaseMap] GeoJSON loaded:",
+          data.features.length,
+          "features, sample:",
+          data.features[0]?.properties
+        );
+      })
+      .catch((err) => console.error("GeoJSON load error:", err));
+  }, []);
 
 
   useEffect(() => {
@@ -71,11 +98,47 @@ const handleMapGenerated = (data) => {
   };
 
 
+useEffect(() => {
+    let isMounted = true;
+    const fetchStats = async () => {
+      if (progress === 100 && currentSessionID) {
+        try {
+          const res = await axios.get(`http://localhost:8000/daluyan-map/extreme-barangays/`, {
+            params: { sessionId: currentSessionID }
+          });
+          
+          if (isMounted) {
+            setExtremeStats(res.data.top_extreme_barangays);
+          }
+        } catch (err) {
+          console.error("XHR Error:", err.message);
+        }
+      }
+    };
 
+    fetchStats();
+
+    return () => { isMounted = false; }; 
+  }, [progress, currentSessionID]);
+
+  console.log("Is GeoJSON loaded?", !!geoJsonData);
   return (
     <div className="flex h-screen bg-gray-50">
-      <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto z-[1001] relative">
-        {/* Pass pageId down to Config */}
+
+    <header className="fixed top-0 left-0 w-full z-[1002] border-b border-gray-200 bg-white">
+      <div className="px-6 py-3 flex items-center justify-between">
+          <img src={Logo} alt="logo" className="h-6 w-auto" />
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition"
+        >
+          <GoHome className="text-lg" />
+          <span className="text-sm font-medium">Home</span>
+        </Link>
+      </div>
+    </header>
+      
+      <div className="w-full max-w-md md:w-80 flex-shrink-0 border-r border-gray-200 overflow-y-auto z-[1001] relative h-[calc(100vh-60px)] mt-[60px]">
        {ConfigComponent ? (
           <ConfigComponent
             setLoading={setLoading} 
@@ -88,15 +151,19 @@ const handleMapGenerated = (data) => {
             isWaterOn = {showWaterMarkers}
             onToggleBuilding={setIsBuildingsOn} 
             isBuildingsOn={isBuildingsOn}
+            onDistrictChange={setSelectedDistrict}
 
           />
         ) : <p>Loading Config...</p>}
       </div>
 
       {/* Map Area */}
-      <div className="flex-1 flex flex-col relative min-w-0">
+      <div className="flex-1 flex flex-col relative min-w-0 ">
 
         <div className="flex-1 bg-slate-400 min-h-[400px] w-full flex items-center justify-center relative">
+            <div className="absolute top-4 right-4 z-[9999]"> 
+              <Extreme_brgy stats={extremeStats} />
+            </div>
             <GeoMap 
                 mapVersion={mapVersion} 
                 mapType={mapType} // Dynamic: susceptibility or resiliency
@@ -105,6 +172,8 @@ const handleMapGenerated = (data) => {
                 pageName={pageName}    
                 showWaterMarkers={showWaterMarkers}
                 isBuildingsOn={isBuildingsOn}
+                barangayGeojson={geoJsonData}
+                selectedDistrict={selectedDistrict}
               />
             {hoverData && (
                 hoverData.mapType === "resiliency" 

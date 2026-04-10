@@ -7,25 +7,26 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction 
 from api.models import FloodPatch
-from ml.manila_quadrant.ml_handler_logic import run_manila_quadrant_inference
 import sys
 from pyproj import Transformer
 from django.core.cache import cache
 import time
 import numpy as np
+from pathlib import Path
+from ml.gmm_rainfall.main import run_complete_testing
 
 
 logger = logging.getLogger(__name__)
 try:
+    csv_path = Path(settings.BASE_DIR) / "ml" / "manila_datasets" / "manila_barangays" / "filtered_psgc_lookup.csv"
     df = pd.read_csv(
-        'ml\\resilience\\manila_barangays\\filtered_psgc_lookup.csv', 
-        header=0, 
+        csv_path,
+        header=0,
         names=['psgc', 'name'],
         dtype={'psgc': int}
     )
     psgc_to_name = dict(zip(df['psgc'], df['name']))
     
-    # Fast Suffix Cache: handles the 100 vs 1307404100 mismatch
     suffix_lookup = {str(psgc)[-3:]: name for psgc, name in psgc_to_name.items()}
     suffix_lookup.update({str(psgc)[-4:]: name for psgc, name in psgc_to_name.items()})
     
@@ -36,14 +37,12 @@ except Exception as e:
     suffix_lookup = {}
 
 def _get_gmm_rainfall_runner():
-    # Ensure this points to the folder containing your main.py
+    # Ensure
     gmm_path = os.path.join(settings.BASE_DIR, "ml", "gmm_rainfall") 
     if gmm_path not in sys.path:
         sys.path.insert(0, gmm_path)
     
-    # Change 'gmm_quadrant' to 'gmm_rainfall' to match your folder structure
-    from ml.gmm_rainfall.main import run_gmm_rainfall_from_scenario 
-    return run_gmm_rainfall_from_scenario
+    return run_complete_testing
 
 def process_resilience_to_db(tif_path, session_id, record):
     ctype = ContentType.objects.get_for_model(record)
@@ -80,7 +79,7 @@ def process_resilience_to_db(tif_path, session_id, record):
 
                 if is_resiliency:
                     poverty_val = float(poverty_band[row, col]) if poverty_band is not None else None
-                    conf_val = 1.0 # Default/Not applicable for Resiliency
+                    conf_val = 1.0 
                 else:
                     poverty_val = None
                     raw_conf = float(confidence_band[row, col]) if confidence_band is not None else 1000.0
@@ -89,10 +88,10 @@ def process_resilience_to_db(tif_path, session_id, record):
 
     
                 if risk_val != 255 and psgc_val > 0:
-                    # Get projected X, Y (in meters)
+                    
                     x_meters, y_meters = affine * (col, row)
                     
-                    # 2. TRANSFORM TO LAT/LNG
+                    # TRANSFORM TO LAT/LNG
                     lng, lat = transformer.transform(x_meters, y_meters)
                     
                     try:
@@ -112,8 +111,8 @@ def process_resilience_to_db(tif_path, session_id, record):
                         depth=float(risk_val),
                         poverty=poverty_val if poverty_val != -9999.0 else None,
                         confidence=conf_val,
-                        lat=lat, # This will now be ~14.5
-                        lng=lng, # This will now be ~120.9
+                        lat=lat, 
+                        lng=lng, 
                         location=f"POINT({lng} {lat})"
                     ))
 
@@ -124,6 +123,7 @@ def process_resilience_to_db(tif_path, session_id, record):
 
 # --- 3. ML DISPATCHER ---
 def run_ml_inference(record, page_name, scenario_id):
+    mask_path = settings.BASE_DIR / "ml" / "manila_datasets" / "manila_box_shape.tif"
     #start progress 
     cache_key = f"progress_{record.session_id}"
     cache.set(cache_key, 10, timeout=600)
@@ -142,11 +142,9 @@ def run_ml_inference(record, page_name, scenario_id):
         ml_config["rainfall"] = getattr(record, 'rainfall', 'low').lower()
     try:
         relative_path = None
-        # Start with just Manila to verify the pipeline works
-        if page_name == "manila-quadrant":
-            relative_path = run_manila_quadrant_inference(ml_config, record.session_id)
+       
         
-        elif page_name == "gmm-partition":
+        if page_name == "gmm-partition":
             run_gmm = _get_gmm_rainfall_runner()
 
             # Data from the Scenario record
@@ -163,19 +161,30 @@ def run_ml_inference(record, page_name, scenario_id):
             os.makedirs(out_dir, exist_ok=True)
 
             # session 2 
-            cache.set(cache_key, 30, timeout=600)
+            cache.set(cache_key, 20, timeout=600)
+
+            for p in range(21, 70, 5):
+                cache.set(cache_key, p)
+                time.sleep(0.5)
+
+            geojson_abs_path = str(settings.BASE_DIR / "ml" / "manila_datasets" / "manila_barangay_geojson.geojson")
+            ml_base = settings.BASE_DIR / "ml" / "gmm_rainfall"
+            suffix = "" if agent_type == 'vehicle' else "_ped"
+            spatial_data_abs_path = str(ml_base / f"outputs{suffix}" / "spatial_data.npz")
 
             results = run_gmm(
-                rainfall_scenario=rainfall,
+                user_type=agent_type.lower(),
+                geojson_path=geojson_abs_path,
+                spatial_data_path=spatial_data_abs_path,
+                output_dir=out_dir,
+                storm_type=rainfall,      # Was rainfall_scenario
                 depth_mm=depth_mm,
                 tpeak=tpeak,
-                session_id=record.session_id,
-                output_dir=out_dir,
-                agent_type=agent_type.lower()
+                mask_tif_path=str(mask_path)
             )
 
             # 3. ML Math finished, now processing file (70%)
-            cache.set(cache_key, 90, timeout=600)
+            cache.set(cache_key, 75, timeout=600)
             
             # Convert absolute result path to a relative path for Django's FileField/URL
             tif_abs = str(results["tif_path"])

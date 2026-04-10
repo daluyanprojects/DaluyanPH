@@ -1,14 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
-import {memo} from 'react'; 
-import { MapContainer, TileLayer, useMapEvents, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import parseGeoraster from "georaster";
 import GeoRasterLayer from "georaster-layer-for-leaflet";
 import "leaflet/dist/leaflet.css";
-import debounce from "lodash/debounce";
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import waterMarker from "../assets/water.png"
 import { GeoJSON } from "react-leaflet";
+
+// imports from other files
+import { useDistrictBoundary } from "../utils/useDistrictBoundary";
+import MapHoverHandler from "./MapHoverHandler"
 
 const colors = ["rgba(0,0,0,0)", "#C6DBEF", "#6BAED6", "#2171B5", "#08306B"];
 const resilienceColors = {
@@ -28,7 +30,8 @@ const waterIcon = new L.Icon({
     shadowSize: null,
     shadowAnchor: null
 });
-// --- 1. GEORASTER LOADER COMPONENT ---
+
+
 function GeoRaster({ mapVersion, mapType, sessionId, pageName, setGlobalLayer }) {
   const map = useMap();
   const [layer, setLayer] = useState(null);
@@ -64,11 +67,9 @@ function GeoRaster({ mapVersion, mapType, sessionId, pageName, setGlobalLayer })
           if (layer) map.removeLayer(layer);
           grLayer.addTo(map);
           setLayer(grLayer);
-          
+        
           if (setGlobalLayer) setGlobalLayer({ layer: grLayer, georaster });
 
-         // const bounds = grLayer.getBounds();
-          //if (bounds.isValid()) map.fitBounds(bounds);
         } catch (err) {
           console.error("GeoTIFF error:", err);
         }
@@ -82,109 +83,22 @@ function GeoRaster({ mapVersion, mapType, sessionId, pageName, setGlobalLayer })
   return null;
 }
 
-// --- 2. HOVER HANDLER COMPONENT ---
-const MapHoverHandler = memo(function MapHoverHandler({ onHover, activeLayer, scenarioId, pageName, mapType }) {
-  //console.log("DEBUG: MapHoverHandler is rendered with ID:", scenarioId)
-  const fetchConfidenceFromDB = useCallback(
-    debounce(async (lat, lng, hazard) => {
-     // console.log("🔥 Sending hover request:", lat, lng);
-      if (!scenarioId) return;
-      try {
-        const response = await fetch(`http://localhost:8000/daluyan-map/flood-patch/${scenarioId}/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lat, lng, page_name: pageName })
-        });
 
-        if (!response.ok) return;
-        const data = await response.json();
-       
-       onHover((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          confidence: data.confidence,
-          barangay_name: data.barangay_name,
-          hazardValue: data.hazardValue,
-          poverty: data.poverty
 
-        };
-      });
-      } catch (err) {
-        console.error("DB Hover Error:", err);
-      }
-    }, 150),
-    [scenarioId, pageName, onHover]
-  );
-
-  useMapEvents({
-mousemove: (e) => {
-  if (!activeLayer || !onHover) return;
-  const { georaster } = activeLayer;
-  const map = e.target;
-  let hazard = null;
-
-  try {
-    if (georaster) {
-      const point = map.options.crs.project(e.latlng); // convert to 3857
-
-      const { xmin, ymax, pixelWidth, pixelHeight, width, height, values } = georaster;
-      const x = Math.floor((point.x - xmin) / pixelWidth);
-      const y = Math.floor((ymax - point.y) / pixelHeight);
-
-      if (
-        x >= 0 &&
-        y >= 0 &&
-        x < width &&
-        y < height
-      ) {
-        const value = values[0][y][x];
-        if (value === -1) {
-            hazard = 0; 
-        } else if (value !== null && value !== 255 && !isNaN(value)) {
-            hazard = value;
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Raster read error:", err);
-  }
-
-  if (hazard === null) {
-    onHover({
-      latlng: e.latlng,
-      containerPoint: e.containerPoint,
-      hazardValue: null,
-      confidence: null,
-      mapType: mapType
-    });
-    return;
-  }
-
-  onHover({
-    latlng: e.latlng,
-    containerPoint: e.containerPoint,
-    hazardValue: hazard,
-    barangay_name: null,
-    confidence: "...",
-    mapType:mapType
-  });
-  
-  fetchConfidenceFromDB(e.latlng.lat, e.latlng.lng, hazard);
-  
-
-},
-  mouseout: () => onHover(null)
-});
-
-  return null;
-});
-
-// --- 3. MAIN EXPORT ---
-export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageName, showWaterMarkers, isBuildingsOn }) {
+export default function GeoMap({ mapVersion, 
+  mapType, 
+  onHover, 
+  sessionId, 
+  pageName, 
+  showWaterMarkers, 
+  isBuildingsOn, 
+  selectedDistrict, 
+  barangayGeojson 
+}) {
   const [activeLayer, setActiveLayer] = useState(null);
   const [waterBodies, setWaterBodies] = useState([]);
   const [buildings, setBuildings] = useState(null);
+  const districtBoundary = useDistrictBoundary(selectedDistrict, barangayGeojson);
 
  useEffect(() => {
   if (isBuildingsOn && !buildings) {
@@ -192,8 +106,6 @@ export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageNa
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Add your token here if you use JWT/Token Auth
-        // "Authorization": `Token ${localStorage.getItem("token")}` 
       }
     })
       .then(res => {
@@ -201,8 +113,7 @@ export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageNa
         return res.json();
       })
       .then(data => {
-        // If your backend returns an object that already has geometry,
-        // you might not need JSON.parse() at all.
+      
         setBuildings(data); 
       })
       .catch(err => console.error("Error fetching buildings:", err));
@@ -242,7 +153,21 @@ export default function GeoMap({ mapVersion, mapType, onHover, sessionId, pageNa
           setGlobalLayer={setActiveLayer} 
         />
 
-        {isBuildingsOn && buildings && (
+        {/* District highlight boundary */}
+        {districtBoundary && (
+          <GeoJSON
+            key={selectedDistrict}   /* force remount when district changes */
+            data={districtBoundary}
+            style={{
+              color: "#F97316",
+              weight: 2,
+              fillOpacity: 0,
+            }}
+          />
+        )}
+      
+
+     {isBuildingsOn && buildings && (
           <GeoJSON 
             data={buildings} 
             style={{ 

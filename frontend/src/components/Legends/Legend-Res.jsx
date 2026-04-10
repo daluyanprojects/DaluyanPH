@@ -9,13 +9,13 @@ const LegendRes = () => {
     <div className="card-actions grid grid-cols-2 gap-y-1 gap-x-1 items-center justify-center">
 
 
-        <h3 className="font-bold text-l text-left w-28">Strong</h3>
+        <h3 className="font-bold text-l text-left w-28">Low</h3>
         <div className="bg-green-700 w-35 h-4"></div>
   
         <h3 className="font-bold text-l text-left w-28 ">Average</h3>
         <div className="bg-amber-600 w-35 h-4"></div>
 
-        <h3 className="font-bold text-l text-left w-28">Low</h3>
+        <h3 className="font-bold text-l text-left w-28">High</h3>
         <div className="bg-red-800 w-35 h-4"></div>
 
     </div>

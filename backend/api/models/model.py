@@ -3,31 +3,6 @@ from django.db import models
 from .base_model import DaluyanBase
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
-# Model 1 & 2: Manila Only
-class ManilaQuadrantScenario(DaluyanBase):
-    """ Page: Manila Quadrant Splitting """
-
-    '''("Value_to_save", "Value_to_display" for dropdown)'''
-    RAIN_SIMPLE = [("Light", "Light"), ("Medium", "Medium"), ("Heavy", "Heavy"), ("Extreme", "Extreme")]
-    rainfall = models.CharField(max_length=20, choices=RAIN_SIMPLE)
-
-
-class ManilaPartitionScenario(DaluyanBase):
-    """ Page: Manila Rainfall Partition """
-    RAIN_COMPLEX = [("SCS-style front-loaded", "SCS-style front-loaded"), ("SCS-style back-loaded", "SCS-style back-loaded"), ("SCS-style balanced", "SCS-style balanced"), ("Chicago-style Triangular", "Chicago-style Triangular")]
-    rainfall_scenario = models.CharField(max_length=100, choices=RAIN_COMPLEX)
-    is_land_use = models.BooleanField(default=False)
-    is_infiltration = models.BooleanField(default=False)
-
-
-# Model 3 & 4: Greater Manila 
-class GMMQuadrantScenario(DaluyanBase):
-    """ Page: GMM Quadrant Splitting """
-    RAIN_SIMPLE = [("Light", "Light"), ("Medium", "Medium"), ("Heavy", "Heavy"), ("Extreme", "Extreme")]
-    rainfall = models.CharField(max_length=100, choices=RAIN_SIMPLE)
-    is_land_use = models.BooleanField(default=False)
-    is_infiltration = models.BooleanField(default=False)
-
 
 TRAINING_RANGES = {
     'front-loaded': {'depth_mm': (6, 78), 'tpeak': None},

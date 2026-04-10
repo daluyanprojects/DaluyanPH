@@ -2,7 +2,7 @@ from django.contrib.gis.db import models as gis_models
 
 class WaterBody(gis_models.Model):
     name = gis_models.CharField(max_length=255)
-    water_type = gis_models.CharField(max_length=100) # 'river' or 'estero'
+    water_type = gis_models.CharField(max_length=100) # 'river' or 'estero' or 'creek'
     description = gis_models.TextField(blank=True, null=True)
     image_file = gis_models.ImageField(upload_to='rivers/', blank=True, null=True) 
     

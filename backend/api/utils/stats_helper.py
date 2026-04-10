@@ -9,12 +9,10 @@ def get_top_extreme_stats(session_id):
         .order_by("-extreme_count")[:5]
 
 def calculate_area_sq_km(patch_count):
-    """Calculates physical area based on 4x4 pixel patches."""
+    """Calculates physical area in sq km based on 4x4 pixel patches."""
     px_width = 29.296875
     px_height = 31.875
     single_pixel_area = px_width * px_height
-    
-    # 4x4 pixels
-    patch_area_sq_m = (4 * 4) * single_pixel_area
-    return patch_count * patch_area_sq_m
-
+    patch_area_sq_m = 16 * single_pixel_area
+    patch_area_sq_km = (patch_count * patch_area_sq_m) / 1_000_000
+    return patch_area_sq_km

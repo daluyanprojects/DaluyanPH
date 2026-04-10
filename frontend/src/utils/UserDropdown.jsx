@@ -1,40 +1,52 @@
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 export default function StormDropdown({ value, onChange }) {
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
+
   const options = ["Pedestrian", "Vehicle"];
 
   return (
-    <div className="mb-5 flex flex-col">
-
-      <label className="flex flex-col gap-1 animate-fadeIn">
-                  <span className="text-xs font-bold text-slate-500 ml-1">User: </span>
+    <div className="mb-4">
+      {/* Label */}
+      <label className="text-xs font-bold text-slate-500 ml-1 mb-1 block">
+        User
       </label>
+
       <div className="relative">
         {/* Button */}
-        <div
-          role="button"
-          className="btn m-1 w-[250px] text-left"
+        <button
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-between bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 hover:border-blue-400 transition"
         >
-          {value || "Select"}
-        </div>
+          <span>{value || "Select user type"}</span>
+          <ChevronDown
+            className={`w-4 h-4 text-slate-400 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
 
         {/* Dropdown */}
         {isOpen && (
-          <ul className="absolute dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow w-[250px]">
+          <ul className="absolute mt-1 w-full bg-white border border-slate-200 rounded-md shadow-lg z-[200] overflow-hidden animate-fadeIn">
             {options.map((option) => (
               <li key={option}>
-                <a
-                  href="#!"
-                  className="cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => {
-                    onChange(option); // update parent state
-                    setIsOpen(false); // close dropdown
+                    onChange(option);
+                    setIsOpen(false);
                   }}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 transition ${
+                    value === option
+                      ? "bg-blue-50 text-blue-600 font-medium"
+                      : "text-slate-700"
+                  }`}
                 >
                   {option}
-                </a>
+                </button>
               </li>
             ))}
           </ul>

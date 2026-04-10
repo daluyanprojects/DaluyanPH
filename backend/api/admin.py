@@ -1,9 +1,6 @@
 from django.contrib import admin
 from django.contrib.gis import admin as gis_admin
 from api.models import (
-    ManilaQuadrantScenario, 
-    ManilaPartitionScenario, 
-    GMMQuadrantScenario, 
     GMMPartitionScenario,
     FloodPatch,
     WaterBody
@@ -23,7 +20,4 @@ class FloodPatchAdmin(gis_admin.GISModelAdmin):
     search_fields = ('barangay_name', 'psgc_code', 'object_id')
 
 # --- 2. SCENARIO MODELS (Standard View) ---
-admin.site.register(ManilaQuadrantScenario)
-admin.site.register(ManilaPartitionScenario)
-admin.site.register(GMMQuadrantScenario)
 admin.site.register(GMMPartitionScenario)

@@ -1,5 +1,6 @@
+#api/controller/building_hover.py
 import os
-import json # <--- ADD THIS
+import json 
 from django.conf import settings
 from django.http import JsonResponse
 from rest_framework.views import APIView
@@ -13,6 +14,7 @@ class BuildingLayerView(APIView):
         shp_path = os.path.join(
             settings.BASE_DIR, 
             'ml', 
+            'manila_datasets',
             'manila_buildings', 
             'final_manila_building_daluyan.shp'
         )

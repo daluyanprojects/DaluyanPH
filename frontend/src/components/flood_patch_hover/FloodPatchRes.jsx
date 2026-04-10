@@ -9,9 +9,9 @@ const FloodPatchRes = ({ hoverData }) => {
   const getRiskLabel = (val) => {
     const levels = {
       0: { label: "No Risk", color: "text-emerald-50" },
-      1: { label: "Strong", color: "text-emerald-400" },
+      1: { label: "Low", color: "text-emerald-400" },
       2: { label: "Average", color: "text-orange-400" },
-      3: { label: "Low", color: "text-red-500" },
+      3: { label: "High", color: "text-red-500" },
     };
     return levels[val] || { label: "No Data", color: "text-slate-500" };
   };
@@ -28,11 +28,11 @@ const getPovertyLabel = (val) => {
   }
   
   // Based on your legend: 0 is dark (Richest), increasing values are lighter (Poorer)
-  if (val === 0) return { label: "Richest", color: "text-purple-500" };
-  if (val > 0 && val <= 0.0093) return { label: "Prosperous", color: "text-blue-400" };
-  if (val > 0.0093 && val <= 0.0303) return { label: "Middle Class", color: "text-teal-400" };
-  if (val > 0.0303 && val <= 0.0523) return { label: "Lower Middle", color: "text-green-400" };
-  return { label: "Poorest", color: "text-yellow-400" };
+  if (val === 0) return { label: "High Income", color: "text-purple-500" };
+  if (val > 0 && val <= 0.0093) return { label: "Middle Income", color: "text-blue-400" };
+  if (val > 0.0093 && val <= 0.0303) return { label: "Lower Middle Income", color: "text-teal-400" };
+  if (val > 0.0303 && val <= 0.0523) return { label: "Low Income", color: "text-green-400" };
+  return { label: "Poor", color: "text-yellow-400" };
 };
 
   const povertyStatus = getPovertyLabel(hoverData.poverty);
@@ -68,7 +68,7 @@ const getPovertyLabel = (val) => {
 
           <div className="flex justify-between items-center py-1">
             <span className="text-slate-400 text-[11px]">Economic Class:</span>
-            <span className={`font-black uppercase text-[12px] ${povertyStatus.color}`}>{povertyStatus.label}</span>
+            <span className={`font-black uppercase text-[12px] pl-1 ${povertyStatus.color}`}>{povertyStatus.label}</span>
          </div>
          
        </div>
