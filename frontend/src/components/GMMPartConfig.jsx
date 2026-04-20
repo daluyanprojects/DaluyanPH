@@ -75,7 +75,7 @@ function GMMPartConfig({ setLoading, loading, onMapGenerated, setCurrentSessionI
       toast.error("Simulation failed.");
       const serverMessage = error.response?.data ? JSON.stringify(error.response.data) : "Simulation failed.";
       console.error("Backend Error:", error.response?.data);
-      toast.error(`Server Error!`);
+//toast.error(`Server Error!`);
       setLoading(false);
     } 
   };
@@ -204,33 +204,6 @@ const handleDownload = () => {
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 justify-between">
 
 
-          <div className="bg-blue-50/30 p-3 rounded-lg border border-blue-100 mb-3 mt-2">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500 mb-2">
-                Geographic Filter
-              </p>
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-slate-700 ml-1">Manila's District</span>
-                <select 
-                  value={selectedDistrict}
-                  onChange={handleDistrictChange}
-                  className="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"
-                >
-                  <option value="">Full Manila Map</option>
-                  {Object.keys(DISTRICT_BARANGAYS).map((district) => (
-                    <option key={district} value={district}>
-                      {district}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[9px] text-slate-500 mt-1 italic">
-                  *Selecting a district will highlight its boundaries on the hazard map.
-                </p>
-              </label>
-            </div>
-
-
-                        
-
             {/* Map Type Toggle*/}
             <div className="text-center">
               <p className="font-semibold mb-2 text-sm">Type of map</p>
@@ -250,8 +223,26 @@ const handleDownload = () => {
               </div>
             </div>
 
+            <div className="bg-slate-50 p-3 rounded-lg border mb-1 mt-6">
+              <label className="flex flex-col gap-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">MANILA DISTRICT</span>
+                <select 
+                  value={selectedDistrict}
+                  onChange={handleDistrictChange}
+                  className="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-blue-400"
+                >
+                  <option value="">Full Manila Map</option>
+                  {Object.keys(DISTRICT_BARANGAYS).map((district) => (
+                    <option key={district} value={district}>
+                      {district}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
             {/* Environmental Layers */}
-            <div className="bg-slate-50 p-3 rounded-lg border mb-3 mt-4">
+            <div className="bg-slate-50 p-3 rounded-lg border mb-3 mt-2">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Environmental Layers</p>
               <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-sm font-semibold text-slate-700">Show Bodies of Water</span>

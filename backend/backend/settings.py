@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv 
 import os
+import dj_database_url
 
 load_dotenv()
 
@@ -113,7 +114,7 @@ DATABASES = {
         'NAME': 'flood_thesis',
         'USER': 'postgres',
         'PASSWORD': 'data101',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
@@ -171,24 +172,34 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
-# change this to your directory if wala sa postgres nyo ang gdal 
-# #Local files ni allycakes
-GDAL_LIBRARY_PATH = r"C:\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\bin\\gdal312.dll"
-GEOS_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\geos_c.dll"
-
-PROJ_LIB_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\share\\proj"
+# GDAL paths - configurable via environment variables for Docker compatibility
+# Defaults to Linux/Docker paths, override with local paths on Windows
+if os.name == 'nt':  # Windows
+    GDAL_LIBRARY_PATH = os.environ.get(
+        'GDAL_LIBRARY_PATH',
+        r"C:\Users\PC\AppData\Local\Programs\OSGeo4W\bin\gdal312.dll"
+    )
+    GEOS_LIBRARY_PATH = os.environ.get(
+        'GEOS_LIBRARY_PATH',
+        r"C:\Users\PC\AppData\Local\Programs\OSGeo4W\bin\geos_c.dll"
+    )
+    PROJ_LIB_PATH = os.environ.get(
+        'PROJ_LIB_PATH',
+        r"C:\Users\PC\AppData\Local\Programs\OSGeo4W\share\proj"
+    )
+else:  # Linux/Docker
+    GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', '/usr/lib/x86_64-linux-gnu/libgdal.so')
+    GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', '/usr/lib/x86_64-linux-gnu/libgeos_c.so')
+    PROJ_LIB_PATH = os.environ.get('PROJ_LIB_PATH', '/usr/share/proj')
 
 if os.path.exists(PROJ_LIB_PATH):
     os.environ["PROJ_LIB"] = PROJ_LIB_PATH
-    # For newer versions of GDAL/PROJ, sometimes you also need:
-    os.environ["GDAL_DATA"] = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\share\\gdal"
+    os.environ["GDAL_DATA"] = os.path.join(os.path.dirname(PROJ_LIB_PATH), 'gdal')
 
-#Local files ni kandis
-#GDAL_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\gdal312.dll"
-#GEOS_LIBRARY_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\bin\\geos_c.dll"
 
-#Local files ni ck
-#GDAL_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.4\bin\gdal310.dll"
-#GEOS_LIBRARY_PATH = r"C:\Program Files\QGIS 3.40.4\bin\geos_c.dll"
-# PROJ_LIB_PATH = r"C:\\Users\\PC\\AppData\\Local\\Programs\\OSGeo4W\\share\\proj"
-# "C:\Program Files\QGIS 3.40.4\bin\proj.exe"
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE

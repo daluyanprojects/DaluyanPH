@@ -66,18 +66,15 @@ class PatchDataView(APIView):
                 
                 if not is_resiliency:
                     response_data["confidence"] = patch.confidence
-                
-                # IMPORTANT: Return the data immediately once found!
+            
                 return Response(response_data)
             
-            # If no patch was found in the block above
-           # print(f"❌ No patch found within 200m of ({lng}, {lat})")
+        
             return Response({"message": "No data nearby"}, status=200)
 
         except ModelClass.DoesNotExist:
             return Response({"error": "Scenario not found"}, status=404)
         except Exception as e:
-           # print(f"💥 Unexpected Error: {e}")
             return Response({"error": "Internal Server Error"}, status=500)
         
     def get(self, request, scenario_id):

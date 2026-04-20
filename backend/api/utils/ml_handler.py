@@ -72,8 +72,8 @@ def process_resilience_to_db(tif_path, session_id, record):
 
         affine = src.transform
         
-        for row in range(0, src.height, 5): 
-            for col in range(0, src.width, 5):
+        for row in range(0, src.height): 
+            for col in range(0, src.width):
                 risk_val = band1[row, col]
                 psgc_val = psgc_band[row, col] if psgc_band is not None else 0
 

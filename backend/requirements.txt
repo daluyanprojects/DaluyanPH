@@ -1,11 +1,15 @@
 asgiref
-Django
+django==4.2  
+celery==5.3.6
+redis==5.0.1
+openpyxl
 django-cors-headers
 djangorestframework
 djangorestframework-simplejwt
 PyJWT
 pytz
 sqlparse
+Pillow
 python-dotenv
 psycopg2-binary
 requests
@@ -24,3 +28,6 @@ geopandas
 scipy 
 scikit-learn 
 seaborn 
+django-celery-beat
+celery
+dj-database-url
