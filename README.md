@@ -1,3 +1,29 @@
+# Commit Message Convention
+
+Format:
+
+<type>: <short description>
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation changes
+- refactor: Code improvements without changing behavior
+- test: Add or update tests
+- chore: Maintenance tasks
+
+Examples:
+
+feat: add flood susceptibility prediction module
+fix: resolve GeoTIFF upload validation error
+docs: update setup guide
+refactor: simplify raster preprocessing pipeline
+
+
+---
+
+
+
 # Thesis
 libraries: 
 npm init y
