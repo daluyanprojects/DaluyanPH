@@ -30,13 +30,6 @@ test: add unit tests for prediction API
 chore: update Docker configuration
 ```
 
-## Guidelines
-
-- Use the imperative mood (e.g., "add", "fix", "update"), not past tense.
-- Keep the subject concise (preferably under 50–72 characters).
-- Do not end the subject with a period.
-- Each commit should represent one logical change.
-
 ---
 
 
