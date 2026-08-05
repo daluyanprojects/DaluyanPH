@@ -1,24 +1,41 @@
 # Commit Message Convention
 
-Format:
+Use the following format for all commit messages:
 
+```text
 <type>: <short description>
+```
 
-Types:
-- feat: New feature
-- fix: Bug fix
-- docs: Documentation changes
-- refactor: Code improvements without changing behavior
-- test: Add or update tests
-- chore: Maintenance tasks
+## Types
 
-Examples:
+| Type | Description |
+|------|-------------|
+| `feat` | Add a new feature |
+| `fix` | Fix a bug |
+| `docs` | Update documentation |
+| `refactor` | Improve code without changing functionality |
+| `test` | Add or update tests |
+| `chore` | Perform maintenance tasks (e.g., dependencies, configuration) |
 
+---
+
+## Examples
+
+```text
 feat: add flood susceptibility prediction module
 fix: resolve GeoTIFF upload validation error
 docs: update setup guide
 refactor: simplify raster preprocessing pipeline
+test: add unit tests for prediction API
+chore: update Docker configuration
+```
 
+## Guidelines
+
+- Use the imperative mood (e.g., "add", "fix", "update"), not past tense.
+- Keep the subject concise (preferably under 50–72 characters).
+- Do not end the subject with a period.
+- Each commit should represent one logical change.
 
 ---
 
